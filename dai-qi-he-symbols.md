@@ -1,4 +1,4 @@
-# Iterators和Symbols
+# 迭代器和Symbols
 
 一个数值集合的迭代是一个老生常谈的问题，但在过去我们在程序中遍历元素是非常累赘的。本章将学习新的循环方法，使迭代变得简洁和愉悦。
 
@@ -8,7 +8,7 @@
 
 过去我们要循环一个数组可能会像这样写：
 
-```js
+```javascript
 const names = ['Sara', 'Jake', 'Pete', 'Mark', 'Jill'];
 for(let i = 0; i < names.length; i++) {
     console.log(names[i]);
@@ -17,7 +17,7 @@ for(let i = 0; i < names.length; i++) {
 
 返回同样是：
 
-```
+```text
 Sara
 Jake
 Pete
@@ -31,20 +31,20 @@ Jill
 
 若只是简单遍历元素，可以用如下方式：
 
-```js
+```javascript
 const names = ['Sara', 'Jake', 'Pete', 'Mark', 'Jill'];
 for(const name of names) {
     console.log(name);
 }
 ```
 
-以上代码和之前实现效果相同，但明显更加简洁。注意，任何可迭代(`iterable`)的对象都可以使用`for...of`。
+以上代码和之前实现效果相同，但明显更加简洁。注意，任何可迭代\(`iterable`\)的对象都可以使用`for...of`。
 
 ### 获取Index
 
 传统的`for`循环强制我们使用index变量，尽管我们并不关心这个值。增强`for`循环直接让我们在每一个迭代获取到元素值，但是它并不阻止我们获取index。Array的`entries()`函数返回一个迭代器，该迭代器为索引值和元素值的集合：
 
-```js
+```javascript
 const names = ['Sara', 'Jake', 'Pete', 'Mark', 'Jill'];
 for(const entry of names.entries()) {
     console.log(entry);
@@ -53,7 +53,7 @@ for(const entry of names.entries()) {
 
 返回值为:
 
-```
+```text
 [ 0, 'Sara' ]
 [ 1, 'Jake' ]
 [ 2, 'Pete' ]
@@ -63,7 +63,7 @@ for(const entry of names.entries()) {
 
 我们可以通过结合解构赋值来更加简洁获取索引和元素值:
 
-```js
+```javascript
 const names = ['Sara', 'Jake', 'Pete', 'Mark', 'Jill'];
 for(const [i, name] of names.entries()) {
     console.log(i + '--' + name);
@@ -72,7 +72,7 @@ for(const [i, name] of names.entries()) {
 
 结果为:
 
-```
+```text
 0--Sara
 1--Jake
 2--Pete
@@ -88,17 +88,15 @@ for(const [i, name] of names.entries()) {
 
 JS此前的基本类型包括:`number`,`string`,`boolean`,`null`以及`undefined`；现在又多了个`Symbol`。`Symbols`可以用在以下三个用途:
 
-- 为对象定义属性，这些属性不在普通的迭代中出现---这些属性不是私有的，仅仅只是不想其他那些属性一样可以轻易被发现。
-
-- 轻松定义一个全局注册值或字典对象。
-
-- 用于定义对象中一些特殊且众所周知的对象；这个特性填补了JS接口的空白，这也是`Symbol`最重要的一个意图。
+* 为对象定义属性，这些属性不在普通的迭代中出现---这些属性不是私有的，仅仅只是不想其他那些属性一样可以轻易被发现。
+* 轻松定义一个全局注册值或字典对象。
+* 用于定义对象中一些特殊且众所周知的对象；这个特性填补了JS接口的空白，这也是`Symbol`最重要的一个意图。
 
 ### 隐藏属性
 
 直到`Symbol`出现以前，使用`for...in`，遍历对象时所有属性都是可见的。`Symbol`改变了这一状况，`Symbol`属性在迭代时是不可见的。举个例子：
 
-```js
+```javascript
 const age = Symbol('ageValue');
 const email = 'emailValue';
 const sam = {
@@ -117,7 +115,7 @@ console.log(Object.getOwnPropertyNames(sam));
 
 输出为：
 
-```
+```text
 iterating over properties:
 first : Sam
 emailValue : sam@example.com
@@ -127,7 +125,7 @@ list of property names:
 
 尽管`Symbol`属性在普通迭代中是隐藏的，但是它却不是私有的，我们可以通过`Object's getOwnPropertySymbols()`方法来获取所有`Symbol`属性：
 
-```js
+```javascript
 console.log('list of symbol properties');
 console.log(Object.getOwnPropertySymbols(sam));
 
@@ -141,7 +139,7 @@ console.log(sam[age]);
 
 结果为:
 
-```
+```text
 list of symbol properties
 [ Symbol(ageValue) ]
 accessing a symbol property:
@@ -154,7 +152,7 @@ changing value...
 
 接下来试验一下使用`Symbols`构建对象:
 
-```js
+```javascript
 const regex = /cool/;
 
 process.stdout.write('regex is of type RegExp: ');
@@ -172,7 +170,7 @@ console.log(Object.getOwnPropertySymbols(Object.getPrototypeOf(regex)));
 
 结果为:
 
-```
+```text
 regex is of type RegExp: true
 Properties of regex: [ 'lastIndex' ]
 Symbol properties of regex: []
@@ -189,7 +187,7 @@ Symbol properties of regex's prototype:
 
 我们使用`Symbol()`函数来创建一个`Symbol`，看下面的例子:
 
-```js
+```javascript
 const name = 'Tom';
 const tom = Symbol(name);
 const jerry = Symbol('Jerry');
@@ -203,7 +201,7 @@ console.log(tom === anotherTom);
 
 输出：
 
-```
+```text
 Symbol(Tom)
 symbol
 false
@@ -214,7 +212,7 @@ false
 
 当使用`Symbol.for()`创建一个`Symbol`时情况会有一些不同。`for()`方法使用一个`key`作为参数，如果已存在，则创建一个`Symbol`，若已存在，则返回原有的`Symbol`，举个例子:
 
-```js
+```javascript
 const masterWizard = Symbol.for('Dumbledore');
 const topWizard = Symbol.for('Dumbledore');
 
@@ -227,7 +225,7 @@ console.log('Dumbledore' === Symbol.keyFor(topWizard));
 
 第一个使用了`Symbol.for()`创建一个`Symbol`，并赋值给常量`masterWizard`。接下来重复同样过程，但赋值给里一个变量`topWizard`。最后一行使用`keyFor()`，并传入`topWizard`。与`Symbol()`函数不同，传入`for()`的参数代表一个独一无二的`key`，对应于已创建或全局注册的`Symbol`。在本例中，第一个`for()`创建了一个新的`Symbol`实例，而第二个则是获取的第一次调用时全局注册的`Symbol`。`keyFor()`的调用则返回关联注册表中`Symbol`的实例。由以下输出结果可以论证上述文字:
 
-```
+```text
 symbol
 Symbol(Dumbledore)
 true
@@ -236,16 +234,15 @@ true
 
 ### 特定的众所周知的Symbols
 
-在像Java和C#这样的语言中，我们希望不同的类可以通过接口(interfaces)来相互协作使用。JS没有遵从在这些传统，它的约定更加的松散和随意。如果一个类希望其他类有某个方法，它将简单的希望找到这个方法。但这样简单的机制容易导致错误，例如当这个方法不存在时，或这个方法名写法有出入，等等。
+在像Java和C\#这样的语言中，我们希望不同的类可以通过接口\(interfaces\)来相互协作使用。JS没有遵从在这些传统，它的约定更加的松散和随意。如果一个类希望其他类有某个方法，它将简单的希望找到这个方法。但这样简单的机制容易导致错误，例如当这个方法不存在时，或这个方法名写法有出入，等等。
 
-
-由于`Symbol`是独一无二的，与其希望一个类实现`myWonderfulMethod`，不如希望其实现`[Symbol.for('myappname.myWonderfulMethod')] `，这是不会出现含糊不清的问题。
+由于`Symbol`是独一无二的，与其希望一个类实现`myWonderfulMethod`，不如希望其实现`[Symbol.for('myappname.myWonderfulMethod')]`，这是不会出现含糊不清的问题。
 
 JS已经存在很多众所周知的`Symbols`，例如`Symbol.iterator`, `Symbol.match`, `Symbol.replace` 和 `Symbol.search`。一些函数或方法希望类能够实现这些方法，并将其实例作为参数传递进来。
 
 其中一个例子就是字符串的`search()`方法。如果传入的参数不是`RegExp`的实例，它将使用传入的参数作为构造函数的参数，并创建一个`RegExp`。然而只有当传入的参数没有提供名为`Symbol.search`的方法时，上述文字才是正确的。如果实现了该方法，这个方法将被用于进行查询。举个例子来证明:
 
-```js
+```javascript
 class SuperHero {
     constructor(name, realName) {
         this.name = name;
@@ -261,7 +258,7 @@ class SuperHero {
 
 接下来我们写下调用部分:
 
-```js
+```javascript
 const superHeroes = [
     new SuperHero('Superman', 'Clark Kent'),
     new SuperHero('Batman', 'Bruce Wayne'),
@@ -276,7 +273,7 @@ for(const superHero of superHeroes) {
 
 输出结果表明，`SuperHero`类中定义的特殊方法在执行`names`的`search()`时被调用：
 
-```
+```text
 this: Superman, value: Peter Parker, Clark Kent, Bruce Wayne
 Result of search: 14
 this: Batman, value: Peter Parker, Clark Kent, Bruce Wayne
@@ -295,7 +292,7 @@ JS中的内置集合，例如:`Array`,`Set`和`Map`，都是迭代器，我们�
 
 我们不能在一个实例中迭代，例如：
 
-```js
+```javascript
 class CardDeck {
     constructor() {
         this.suitShapes = ['Clubs', 'Diamonds', 'Hearts', 'Spaces'];
@@ -311,19 +308,19 @@ for(const suit of deck) {
 
 `CardDeck`类中有一个属性命名为`suitShapes`，存储了字符串数组对象。结果不出意外:
 
-```
-
+```text
 for(const suit of deck) {
                     ^
 TypeError: deck is not iterable
 ```
+
 错误明确的告诉我们deck不可迭代。
 
 ### 执行一个迭代器
 
 为了让`CardDeck`的实例能够迭代，我们需要创建一个方法提供迭代器服务。举个例子：
 
-```js
+```javascript
 class CardDeck {
     constructor() {
         this.suitShapes = ['Clubs', 'Diamonds', 'Hearts', 'Spaces'];
@@ -351,7 +348,7 @@ class CardDeck {
 
 首先，写下两行代码：
 
-```js
+```javascript
 let index = -1;
 const self = this;
 ```
@@ -360,7 +357,7 @@ const self = this;
 
 最终返回结果为:
 
-```
+```text
 Clubs
 Diamonds
 Hearts
@@ -373,7 +370,7 @@ Spaces
 
 让我们对之前的迭代器方法进行改造：
 
-```js
+```javascript
 *[Symbol.iterator]() {
     for(const shape of this.suitShapes) {
         yield shape;
@@ -385,7 +382,7 @@ Spaces
 
 `yield`极大的简化了迭代器的执行。我们可以使用`for`,`while`或者其他形式的迭代，甚至可以简单的在函数中放置多个`yield`，例如：
 
-```js
+```javascript
 *[Symbol.iterator]() {
     yield this.suitShapes[0];
     yield this.suitShapes[1];
@@ -398,7 +395,7 @@ Spaces
 
 正如其名称所显示的那样，`generator`用于产生数据。想让一个函数变成一个`generator`，需要在前面加上`*`。让我们把之前的迭代器方法改造为普通的`generator`：
 
-```js
+```javascript
 *suits() {
     for(const color of this.suitShapes) {
         yield color;
@@ -408,7 +405,7 @@ Spaces
 
 如你所见，我们仅仅只是将`*[Symbol.iterator]()` 替换为 `*suits()`，其余部分保持不变。这时我们就不能直接使用`for(const suit of deck)`了。与之相对，我们应该像这样：
 
-```js
+```javascript
 const deck = new CardDeck();
 for(const suit of deck.suits()) {
     console.log(suit);
@@ -417,7 +414,7 @@ for(const suit of deck.suits()) {
 
 另一方面，我们虽然不能直接对类的实例进行迭代，但我们可以有多个`generator`方法，例如新增一个`generator`：
 
-```js
+```javascript
 *pips() {
     yield 'Ace';
     yield 'King';
@@ -431,7 +428,7 @@ for(const suit of deck.suits()) {
 
 调用方式如下:
 
-```js
+```javascript
 for(const pip of deck.pips()) {
     process.stdout.write(pip + ', ');
 }
@@ -440,7 +437,7 @@ console.log();
 
 结果为：
 
-```
+```text
 Ace, King, Queen, Jack, 10, 9, 8, 7, 6, 5, 4, 3, 2,
 ```
 
@@ -448,7 +445,7 @@ Ace, King, Queen, Jack, 10, 9, 8, 7, 6, 5, 4, 3, 2,
 
 JS为我们提供了途径来组合`generators`，在`CardDeck`类中创建一个方法`suitsAndPips()`：
 
-```js
+```javascript
 *suitsAndPips() {
     yield* this.suits();
     yield* this.pips();
@@ -459,7 +456,7 @@ JS为我们提供了途径来组合`generators`，在`CardDeck`类中创建一�
 
 现在让我们用`suitsAndPips()`方法类迭代整个序列：
 
-```js
+```javascript
 for(const value of deck.suitsAndPips()) {
     process.stdout.write(value + ' ');
 }
@@ -467,13 +464,13 @@ for(const value of deck.suitsAndPips()) {
 
 结果为：
 
-```
+```text
 Clubs Diamonds Hearts Spaces Ace King Queen Jack 10 9 8 7 6 5 4 3 2
 ```
 
 我们同样可以将`yield*`用于任意可迭代的对象，例如`Array`，重构一下`CardDeck`类：
 
-```js
+```javascript
 class CardDeck {
     constructor() {
         this.suitShapes = ['Clubs', 'Diamonds', 'Hearts', 'Spaces'];
@@ -501,7 +498,7 @@ class CardDeck {
 
 首先举个例子，创建一个无限素数序列。先定义一个`isPrime()`函数，判断入参是否为素数。
 
-```js
+```javascript
 const isPrime = function(number) {
     for(let i = 2; i < number; i++) {
         if(number % i === 0) return false;
@@ -509,9 +506,10 @@ const isPrime = function(number) {
     return number > 1;
 };
 ```
+
 接下来用该函数创建一个`generator`：
 
-```js
+```javascript
 const primesStartingFrom = function*(start) {
     let index = start;
     while(true) {
@@ -525,7 +523,7 @@ const primesStartingFrom = function*(start) {
 
 现在，让我们在具体的迭代中使用迭代器。序列本身世无限的，但是在调用端，我们必须控制生成器产出的数量:
 
-```js
+```javascript
 for(const number of primesStartingFrom(10)) {
     process.stdout.write(number + ', ');
     if(number > 25) break;
@@ -534,7 +532,7 @@ for(const number of primesStartingFrom(10)) {
 
 这里通过设置`number`的大小来限制生成器产出的数量，结果为：
 
-```
+```text
 11, 13, 17, 19, 23, 29,
 ```
 

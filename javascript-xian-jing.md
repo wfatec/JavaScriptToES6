@@ -1,0 +1,2 @@
+# Javascript陷阱
+

@@ -6,19 +6,19 @@ JS有三种定义函数的方式：
 
 1. 命名函数
 
-```js
+```javascript
 function sqr(n) { return n * n; }
 ```
 
-2. 匿名函数
+1. 匿名函数
 
-```js
+```javascript
 const sqr = function(n) { return n * n; };
 ```
 
-3. 箭头函数
+1. 箭头函数
 
-```js
+```javascript
 const sqr = (n) => n * n;
 ```
 
@@ -28,7 +28,7 @@ const sqr = (n) => n * n;
 
 当参数只有一个时，可以省略括号：
 
-```js
+```javascript
 const greet = subject => console.log('Hello ' + subject);
 ```
 
@@ -36,7 +36,7 @@ const greet = subject => console.log('Hello ' + subject);
 
 多行箭头函数就不像单行是那样简洁了，需要给函数体加上花括号`{}`，每行语句或表达式末尾希望加入`;`。
 
-```js
+```javascript
 const factorial = (number) => {
     let product = 1;
     for(let i = 1; i <= number; i++) {
@@ -50,7 +50,7 @@ const factorial = (number) => {
 
 箭头函数同样支持Rest参数：
 
-```js
+```javascript
 const greet =
     (message, ...subjects) => console.log(message + ' '+ subjects.join(', '));
 greet('Hi', 'Developers', 'Geeks');
@@ -62,7 +62,7 @@ greet('Hi', 'Developers', 'Geeks');
 
 箭头函数同样支持默认参数：
 
-```js
+```javascript
 const power = (number, exp = 2) => Math.pow(number, exp);
 
 console.log(power(4, 3));
@@ -77,13 +77,13 @@ console.log(power(4));
 
 函数中的变量大多来源于参数或者局部定义，然而有些参数却是在外部定义的。举个例子：
 
-```js
+```javascript
 [1, 2, 3].map(function(e) { return e * 2; })
 ```
 
 这里的变量`e`来源于输入的参数，现在加入一个变量：
 
-```js
+```javascript
 [1, 2, 3].map(function(e) { return e * factor; })
 ```
 
@@ -91,9 +91,8 @@ console.log(power(4));
 
 有两种可能：
 
-1. 函数所使用的变量定义时所在的作用域--这被称为词法作用域(lexical scoping)
-
-2. 函数调用时所在的作用于--这被称为动态作用域(dynamic scoping)
+1. 函数所使用的变量定义时所在的作用域--这被称为词法作用域\(lexical scoping\)
+2. 函数调用时所在的作用于--这被称为动态作用域\(dynamic scoping\)
 
 大多编程语言青睐词法作用域，也有一些语言使用动态作用域。JS比较特殊--两者都有。这也是造成匿名函数出现错误的一个根源。
 
@@ -103,7 +102,7 @@ JS对所有非参数，非局部变量都使用词法作用域，`this`和`argum
 
 举个例子来说明`this`的一些奇怪的行为：
 
-```js
+```javascript
 this.stuff = 'from lexical scope';
 const someValue = 4;
 const self = this;
@@ -117,7 +116,7 @@ setTimeout(function() {
 
 结果为:
 
-```
+```text
 someValue is 4
 this...undefined
 self...from lexical scope
@@ -125,7 +124,7 @@ self...from lexical scope
 
 由于`this`和其他变量有着不同的作用域，编程人员通常需要使用`self`这样的变量来从外部作用域获取`this`。但是箭头函数不会改变`this`的作用域:
 
-```js
+```javascript
 setTimeout(() => {
     console.log('someValue is ' + someValue); //lexical scope for someValue
     console.log('this...' + this.stuff); //lexical scope for this
@@ -135,7 +134,7 @@ setTimeout(() => {
 
 这时结果完全正确：
 
-```
+```text
 someValue is 4
 this...from lexical scope
 self...from lexical scope
@@ -143,7 +142,7 @@ self...from lexical scope
 
 接下来再举个例子说明`arguments`在两者之间的区别:
 
-```js
+```javascript
 Line    1 const create = function(message) {
         2   console.log('First argument for create: ' + arguments[0]);
         3   return function() {
@@ -157,14 +156,14 @@ Line    1 const create = function(message) {
 
 结果为：
 
-```
+```text
 First argument for create: some value
 First argument seen by greet: hi
 ```
 
 现在用箭头函数来改造：
 
-```js
+```javascript
 const create = function(message) {
     console.log('First argument for create: ' + arguments[0]);
     return () => console.log('First argument seen by greet: ' + arguments[0]);
@@ -176,7 +175,7 @@ greet('hi');
 
 这时结果为：
 
-```
+```text
 First argument for create: some value
 First argument seen by greet: some value
 ```
@@ -187,7 +186,7 @@ First argument seen by greet: some value
 
 `bind()`函数对于绑定函数值和函数柯里化很有帮助，例如：
 
-```js
+```javascript
 const greet = function(message, name) {
     console.log(message + ' ' + name);
 };
@@ -197,7 +196,7 @@ const sayHi = greet.bind(null, 'hi');
 sayHi('Joe');
 ```
 
-这里`greet()`函数已经柯里化，预先绑定了一个参数值，结果为`hi  joe`。
+这里`greet()`函数已经柯里化，预先绑定了一个参数值，结果为`hi joe`。
 
 事实上`bind()`还可以通过第一个参数绑定`this`，但在箭头函数中，由于`this`使用词法作用域，因此第一个参数会被忽略，具体形式为`anArrowFunc.bind(null, someinput)`。
 
@@ -209,7 +208,7 @@ sayHi('Joe');
 
 这似乎有些矛盾，但有时候能给匿名函数命名是有作用的，例如：
 
-```js
+```javascript
 setTimeout(function repeat(count) {
     console.log('called...');
     if(count > 1)
@@ -221,7 +220,7 @@ setTimeout(function repeat(count) {
 
 当然，我们可以用命名函数达到同样的效果：
 
-```js
+```javascript
 const repeat = function repeat(count) {
     console.log('called...');
     if(count > 1)
@@ -234,7 +233,7 @@ setTimeout(repeat.bind(null, 5), 1000);
 
 函数可能被用作构造器，并通过`new`来调用并生成实例对象。
 
-```js
+```javascript
 //function Car(year) {
 //or
 const Car = function(year) {
@@ -244,13 +243,13 @@ const Car = function(year) {
 
 这是我们可以这样生成实例：
 
-```js
+```javascript
 const car1 = new Car(2018);
 ```
 
 而箭头函数不能作为构造器，试验一下：
 
-```js
+```javascript
 const Car = (year) => this.year = year;
 
 const car1 = new Car(2018);
@@ -258,7 +257,7 @@ const car1 = new Car(2018);
 
 这时抛出错误：
 
-```
+```text
 const car1 = new Car(2018);
              ^
 TypeError: Car is not a constructor
@@ -268,7 +267,7 @@ TypeError: Car is not a constructor
 
 函数可以通过`new.target`来判断其作为一个构造函数被调用还是作为普通函数被调用：
 
-```js
+```javascript
 const f1 = function() {
     if(new.target) {
         console.log('called as a constructor');
@@ -280,16 +279,17 @@ const f1 = function() {
 new f1();
 f1();
 ```
+
 输出：
 
-```
+```text
 called as a constructor
 called as a function
 ```
 
 当使用箭头函数时：
 
-```js
+```javascript
 const arrow = () => {
     console.log(new.target);
 };
@@ -301,7 +301,7 @@ arrow();
 
 如果一个箭头函数在另一个函数内部被定义，箭头函数将得到所在函数的`new.target`属性。
 
-```js
+```javascript
 const outer = function() {
     return () => console.log(new.target);
 };
@@ -315,14 +315,14 @@ arrow2();
 
 结果为：
 
-```
+```text
 [Function: outer]
 undefined
 ```
 
 ### 没有prototype属性
 
-```js
+```javascript
 const aFunc = function() {};
 const anArrow = () => {};
 
@@ -332,14 +332,14 @@ console.log(anArrow.prototype);
 
 输出：
 
-```
+```text
 aFunc {}
 undefined
 ```
 
 ### 无法变为Generators
 
-```js
+```javascript
 const primesStartingFrom = function*(start) {
     let index = start;
     while(true) {
@@ -351,14 +351,14 @@ const primesStartingFrom = function*(start) {
 
 此前的例子中我们实现了一个生成器，如果使用箭头函数，将无法实现：
 
-```js
+```javascript
 const primesStartingFrom = *(start) => { //Will not work
 //...
 ```
 
 抛出错误：
 
-```
+```text
 const primesStartingFrom = *(start) => { //Will not work
                            ^
 SyntaxError: Unexpected token *
@@ -368,25 +368,25 @@ SyntaxError: Unexpected token *
 
 之前提到过我们可以这样定义单行箭头函数：
 
-```js
+```javascript
 const alwaysTrue = () => true;
 ```
 
 但却不包括throw：
 
-```js
+```javascript
 const mapFunction = () => throw new Error('fail'); //BROKEN CODE
 ```
 
 此时抛出错误：
 
-```
+```text
 SyntaxError: Unexpected token throw
 ```
 
 必须使用`{}`进行包裹：
 
-```js
+```javascript
 const madFunction = () => { throw new Error('fail'); };
 ```
 
@@ -394,7 +394,7 @@ const madFunction = () => { throw new Error('fail'); };
 
 当需要直接返回一个对象字面量时，可能会这么写：
 
-```js
+```javascript
 const createObject = (name) => { firstName: name };
 
 console.log(createObject('George'));
@@ -402,7 +402,7 @@ console.log(createObject('George'));
 
 但这里JS会将`{}`理解为语句块标识，而不反悔任何值，结果为`undefined`。这时可以通过`()`来告诉JS这是一个返回字段：
 
-```js
+```javascript
 const createObject = (name) => ({ firstName: name });
 
 console.log(createObject('George'));
@@ -410,7 +410,7 @@ console.log(createObject('George'));
 
 结果为:
 
-```
+```text
 { firstName: 'George' }
 ```
 
@@ -418,21 +418,17 @@ console.log(createObject('George'));
 
 这里给出一些总结：
 
-- 不要在class，对象字面量，或是`Object.prototype`中使用箭头函数定义方法。这里最大的问题就是`this`的词法作用域。如果一个方法用箭头函数定义，`this`将不是指向调用该方法的实例。
-
-- 避免将多行箭头函数作为参数传递给一个函数。
-
-- 在只有一行时，使用箭头函数。
-
-- 在注册事件响应方法时，如果`this`需要使用动态作用域，不要使用箭头函数；反之，若需要词法作用域，则使用箭头函数。
-
-- 使用单行箭头函数作为参数传递给函数。
+* 不要在class，对象字面量，或是`Object.prototype`中使用箭头函数定义方法。这里最大的问题就是`this`的词法作用域。如果一个方法用箭头函数定义，`this`将不是指向调用该方法的实例。
+* 避免将多行箭头函数作为参数传递给一个函数。
+* 在只有一行时，使用箭头函数。
+* 在注册事件响应方法时，如果`this`需要使用动态作用域，不要使用箭头函数；反之，若需要词法作用域，则使用箭头函数。
+* 使用单行箭头函数作为参数传递给函数。
 
 ## 箭头函数&函数式编程
 
 举一个命令式编程的例子：
 
-```js
+```javascript
 const pickNamesInUpperCaseOfLength = function(names, length) {
     let result = '';
 
@@ -448,17 +444,16 @@ const pickNamesInUpperCaseOfLength = function(names, length) {
 
 命令式编程有两个主要痛点：
 
-- 包含可变性；变量`result`在迭代过程中会被改变
-
-- 我们需要告诉它要做什么以及怎么做
+* 包含可变性；变量`result`在迭代过程中会被改变
+* 我们需要告诉它要做什么以及怎么做
 
 我们可以通过函数式编程解决上述问题。
 
-函数式编程使用高阶函数(high-order functions)，可以接受一个函数并返回一个新的函数。
+函数式编程使用高阶函数\(high-order functions\)，可以接受一个函数并返回一个新的函数。
 
 JS提供了一些高阶函数，例如Array中的`filter()`和`map()`。重构上述函数：
 
-```js
+```javascript
 const pickNamesInUpperCaseOfLength = function(names, length) {
     return names.filter(function(name) { return name.length === length; })
         .map(function(name) { return name.toUpperCase(); })
@@ -468,7 +463,7 @@ const pickNamesInUpperCaseOfLength = function(names, length) {
 
 这里还可以通过箭头函数加以优化：
 
-```js
+```javascript
 const pickNamesInUpperCaseOfLength = function(names, length) {
     return names.filter((name) => name.length === length)
         .map((name) => name.toUpperCase())
@@ -477,3 +472,4 @@ const pickNamesInUpperCaseOfLength = function(names, length) {
 ```
 
 这时，我们的代码变得更加简洁和优雅。
+

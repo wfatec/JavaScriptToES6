@@ -1,6 +1,7 @@
 # Table of contents
 
-* [Javascript陷阱](README.md)
+* [前言](README.md)
+* [Javascript陷阱](javascript-xian-jing.md)
 * [变量和常量](bian-liang-he-chang-liang.md)
 * [函数&Arguments](han-shu-arguments.md)
 * [迭代器和Symbols](dai-qi-he-symbols.md)

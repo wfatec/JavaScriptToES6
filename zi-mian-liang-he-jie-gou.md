@@ -4,7 +4,7 @@
 
 对于字符串和字符串变量的组合，传统的做法是通过`+`号连接，
 
-```js
+```javascript
 const name1 = 'Jack';
 const name2 = 'Jill';
 
@@ -17,19 +17,19 @@ console.log('Hello ' + name1 + ' and ' + name2);
 
 JS使用反引号来表示模板字符串：
 
-```js
+```javascript
 console.log(`Hello ${name1} and ${name2}`);
 ```
 
 输出：
 
-```
+```text
 Hello Jack and Jill
 ```
 
 `${`会被认为开始模板语法，将后续`}`前的语句看作表达式：
 
-```js
+```javascript
 const price = 1;
 
 console.log(`The price of a { symbol is $${price * 0.01 }.`);
@@ -37,7 +37,7 @@ console.log(`The price of a { symbol is $${price * 0.01 }.`);
 
 输出
 
-```
+```text
 The price of a { symbol is $0.01.
 ```
 
@@ -45,7 +45,7 @@ The price of a { symbol is $0.01.
 
 之前都是用`const`声明模板中的变量，我们同样可以使用`let`，不过需要格外小心：
 
-```js
+```javascript
 let value = 4;
 
 const msg1 = `The value is ${value}`;
@@ -59,7 +59,7 @@ console.log(print());
 
 结果为：
 
-```
+```text
 The value is 4
 The value is 0
 ```
@@ -68,7 +68,7 @@ The value is 0
 
 模板语法同样可以嵌套使用：
 
-```js
+```javascript
 const hours = 14;
 const event = 'meeting';
 
@@ -78,13 +78,13 @@ console.log(`The ${event} will happen ${hours < 12 ? 'in the morning' :
 
 输出：
 
-```
+```text
 The meeting will happen later in the day, in the evening.
 ```
 
 在使用嵌套的模板语法时，需要考虑代码是否更易阅读，如果答案是不易阅读，则将嵌套部分抽离出来替换为独立的函数：
 
-```js
+```javascript
 const when = (hrs) =>
     hrs < 12 ? 'in the morning' :
         `later in the day, in the ${hrs < 20 ? 'evening' : 'night'}`;
@@ -96,7 +96,7 @@ console.log(`The ${event} will happen ${when(hours)}.`);
 
 模板语法可以简洁的创建多行字符串而无须多次拼接：
 
-```js
+```javascript
 const name = 'John Doe';
 
 const message = `Dear ${name},
@@ -111,7 +111,7 @@ console.log(message);
 
 输出：
 
-```
+```text
 Dear John Doe,
 We're delighted to let you know that you have been included in
 our routine spam starting with this one.
@@ -127,32 +127,32 @@ our routine spam starting with this one.
 
 在学会使用标记模板前，让我们使用一个内置标记模板函数`raw()`。先看个例子：
 
-```js
+```javascript
 console.log('some special characters: \\ \\n \\b \'');
 ```
 
 输出为
 
-```
+```text
 some special characters: \ \n \b '
 ```
 
 字符串将所有特殊字符输出了，但需要在每个特殊字符钱加入`\`，再看去除`\`的情况：
 
-```js
+```javascript
 console.log("some special characters: \ \n \b '");
 ```
 
 输出为：
 
-```
+```text
 some special characters:
     '
 ```
 
 显然无法输出特殊字符。但每次加上`\`过于繁琐，这时可以使用`String`类的`raw()`方法：
 
-```js
+```javascript
 console.log(String.raw`some special characters: \ \n \b '`);
 ```
 
@@ -160,7 +160,7 @@ console.log(String.raw`some special characters: \ \n \b '`);
 
 输出为：
 
-```
+```text
 some special characters: \ \n \b '
 ```
 
@@ -168,7 +168,7 @@ some special characters: \ \n \b '
 
 那么如何创建一个标签语法呢？
 
-```js
+```javascript
 const printDetails = function(texts, ...expressions) {
     console.log(texts);
     console.log(expressions);
@@ -180,16 +180,16 @@ printDetails`Hello ${name}, how are you?`;
 
 `printDetails()`函数有两个参数。`text`是模板中所有字符串字面量所组成的数组。`expressions`则是所有表达式的数组。当`printDetails()`作为模板语法的标记时，`text`数组将有两个字符串：表达式之前和表达式之后。`expression`数组则包含一个值：模板语法中表达式执行的结果，在本例中为`'John'`。`printDetails()`函数不反悔任何结果，这没什么问题。这里的执行结果为：
 
-```
+```text
 [ 'Hello ', ', how are you?' ]
 [ 'John' ]
 ```
 
-这里需要注意的是**`text`数组永远比`expression`数组多一个元素**。
+这里需要注意的是`text`**数组永远比**`expression`**数组多一个元素**。
 
 标记还可用于对模板进行转换：
 
-```js
+```javascript
 const mask = function(texts, ...expressions) {
 
     const createMask = (text) => '*'.repeat(text.length);
@@ -212,7 +212,7 @@ console.log(mask`Hi, I'm ${agent}, with ${organization}.`);
 
 输出为：
 
-```
+```text
 Hi, I'm ****, with ***.
 ```
 
@@ -222,7 +222,7 @@ Hi, I'm ****, with ***.
 
 从已有数据中创建对象是一个常见问题，传统的写法非常的繁琐：
 
-```js
+```javascript
 const createPerson = function(name, age, sport, sportFn) {
     const person = {
         name: name,
@@ -248,7 +248,7 @@ sam.playSoccer();
 
 输出：
 
-```
+```text
 Sam
 Sam 21
 Sam, kick, don't touch
@@ -258,7 +258,7 @@ Sam, kick, don't touch
 
 之前的例子中通过`name:name`来对属性赋值，现在可以进行简化：
 
-```js
+```javascript
 const createPerson = function(name, age, sport, sportFn) {
     return {
         name,
@@ -269,7 +269,7 @@ const createPerson = function(name, age, sport, sportFn) {
 
 `toString`方法可以简写为：
 
-```js
+```javascript
 toString() {
     return `${this.name} ${this.age}`;
 },
@@ -279,7 +279,7 @@ toString() {
 
 计算属性，如`playSoccer`，它的属性名是基于一个变量值计算得到的。我们可以这样改造：
 
-```js
+```javascript
 [`play${sport}`] : sportFn
 ```
 
@@ -293,7 +293,7 @@ toString() {
 
 这里是一个函数，它返回一个数组：
 
-```js
+```javascript
 const getPresidentName = function(number) {
     //implemented only for number 6
     return ['John', 'Quincy', 'Adams'];
@@ -302,7 +302,7 @@ const getPresidentName = function(number) {
 
 要想使用这个返回的数组需要这样：
 
-```js
+```javascript
 const president6 = getPresidentName(6);
 const firstName = president6[0];
 const lastName = president6[2];
@@ -314,7 +314,7 @@ const lastName = president6[2];
 
 让我们通过解构赋值的方式重构上述代码：
 
-```js
+```javascript
 const [firstName, middleName, lastName] = getPresidentName(6);
 ```
 
@@ -324,22 +324,21 @@ const [firstName, middleName, lastName] = getPresidentName(6);
 
 如果你只关心数组的第一个值，可以像这样：
 
-```js
+```javascript
 const [firstName] = getPresidentName(6);
 ```
 
 数组中剩余的元素值将会被忽略，如果想忽略`middleName`，可以像这样：
 
-```js
+```javascript
 const [firstName,, lastName] = getPresidentName(6);
 ```
 
 #### 提取数组有效值之外的数值
 
-
 JS并不会对这种情况抛出错误：
 
-```js
+```javascript
 const [firstName,, lastName, nickName] = getPresidentName(6);
 console.log(nickName);
 ```
@@ -350,7 +349,7 @@ console.log(nickName);
 
 在所抽离的元素值为`undefined`时，可以使用默认值：
 
-```js
+```javascript
 const [firstName,, lastName, nickName='Old Man Eloquent'] =
     getPresidentName(6);
 
@@ -363,17 +362,17 @@ console.log(nickName);
 
 我们同样可以将剩余元素值放入一个数组中：
 
-```js
+```javascript
 const [firstName, ...otherParts] = getPresidentName(6);
 ```
 
-`otherParts`值为：['Quincy', 'Adams']。
+`otherParts`值为：\['Quincy', 'Adams'\]。
 
 #### 数据交换
 
 我们可以使用解构特性来进行数据交换
 
-```js
+```javascript
 let [a, b] = [1, 2];
 console.log(`a=${a} b=${b}`);
 [a, b] = [b, a];
@@ -382,7 +381,7 @@ console.log(`a=${a} b=${b}`);
 
 #### 提取参数值
 
-```js
+```javascript
 const printFirstAndLastOnly = function([first,, last]) {
     console.log(`first ${first} last ${last}`);
 };
@@ -394,7 +393,7 @@ printFirstAndLastOnly(['John', 'Q', 'Adams']);
 
 首先定义一个对象：
 
-```js
+```javascript
 const weight = 'WeightKG';
 
 const sam = {
@@ -410,7 +409,7 @@ const sam = {
 
 现在，我们来提取具体属性值。如果我们只想获取某些属性，可以这样：
 
-```js
+```javascript
 const firstName = sam.name;
 const theAge = sam.age;
 ```
@@ -419,15 +418,15 @@ const theAge = sam.age;
 
 与解构数组类似，直接上代码：
 
-```js
+```javascript
 const { name: firstName, age: theAge } = sam;
 ```
 
 这里将`name`属性中的值赋值给`firstName`，将`age`中的值赋值给变量`theAge`。我们可以不把它看成是一个数值提取操作，而是看作是一种**模式匹配**。
 
-设想如果有一个表达式`{ a: 1, b: X, c: 3 } = { a: 1, b: 22, c: 3 } `，如果让你推断一下`X`的值是多少，答案将是22。因为两边的每个属性都有相同的名字，我们通过比较，判定X的值必然和右边b的值相同。现在再来看一下以前的的代码：
+设想如果有一个表达式`{ a: 1, b: X, c: 3 } = { a: 1, b: 22, c: 3 }`，如果让你推断一下`X`的值是多少，答案将是22。因为两边的每个属性都有相同的名字，我们通过比较，判定X的值必然和右边b的值相同。现在再来看一下以前的的代码：
 
-```js
+```javascript
 const { name: firstName, age: theAge } = { name: 'Sam', age: 2, height: 110 };
 ```
 
@@ -435,25 +434,25 @@ const { name: firstName, age: theAge } = { name: 'Sam', age: 2, height: 110 };
 
 #### 提取到具有相同名称的变量
 
-```js
+```javascript
 const { name, age: theAge：theAge } = sam;
 ```
 
 `theAge`的属性名和变量名相同，可以简写为:
 
-```js
+```javascript
 const { name, age: theAge } = sam;
 ```
 
 #### 提取计算属性
 
-```js
+```javascript
 const { [weight]: wt, [Symbol.for('favoriteColor')]: favColor } = sam;
 ```
 
 #### 设置默认值
 
-```js
+```javascript
 const { lat, lon, favorite = true} = {lat: 84.45, lon: -114.12};
 ```
 
@@ -461,7 +460,7 @@ const { lat, lon, favorite = true} = {lat: 84.45, lon: -114.12};
 
 先看个例子：
 
-```js
+```javascript
 const printInfo = function(person) {
     console.log(`${person.name} is ${person.age} years old`);
 };
@@ -471,7 +470,7 @@ printInfo(sam);
 
 这是一个传统的写法，大家都很熟悉，但是通过解构，我们可以让代码更简洁：
 
-```js
+```javascript
 const printInfo = function({name: theName, age: theAge}) {
     console.log(`${theName} is ${theAge} years old`);
 };
@@ -481,7 +480,7 @@ printInfo(sam);
 
 如果让局部变量和参数名相同，可以最终简化为：
 
-```js
+```javascript
 const printInfo = function({name, age}) {
     console.log(`${name} is ${age} years old`);
 };
@@ -491,7 +490,7 @@ const printInfo = function({name, age}) {
 
 目前为止，我们提取的都是对象的顶层属性，解构语法还能让我们轻松的提取更加底层的属性值：
 
-```js
+```javascript
 const { name, address: { street } } = sam;
 ```
 
@@ -501,7 +500,7 @@ const { name, address: { street } } = sam;
 
 如果想同时获取`shipping`和`address`中的`street`属性，该如何避免冲突呢？只需采用不同的变量名即可：
 
-```js
+```javascript
 const { name, address: { street }, shipping: { street: shipStreet } } = sam;
 ```
 
@@ -509,14 +508,14 @@ const { name, address: { street }, shipping: { street: shipStreet } } = sam;
 
 此前，我们通过`[existingVariable] = array`语法将数组中的值赋值给了一个已存在的变量，我们理所当然的会写下下面的代码：
 
-```js
+```javascript
 let theName = '--';
 { name: theName } = sam;
 ```
 
 但是执行后发现会抛出一个错误：
 
-```js
+```javascript
 { name: theName } = sam;
                   ^
 
@@ -527,7 +526,7 @@ SyntaxError: Unexpected token =
 
 不用担心，我们可以这样做：
 
-```js
+```javascript
 let theName = '--';
 ({ name: theName } = sam);
 ```
@@ -540,7 +539,7 @@ let theName = '--';
 
 先来看一个传统的做法：
 
-```js
+```javascript
 const addAge = function(person, theAge) {
     return {first: person.first, last: person.last, age: theAge };
 };
@@ -550,13 +549,13 @@ const parker = { first: 'Peter', last: 'Parker' };
 
 输出为：
 
-```
+```text
 { first: 'Peter', last: 'Parker', age: 15 }
 ```
 
 可以看到整个过程非常繁琐，且缺少灵活性，例如修改一下`person`实例：
 
-```js
+```javascript
 const parker = { first: 'Peter', last: 'Parker',
     email: 'spiderman@superheroes.example.com' };
 
@@ -565,13 +564,13 @@ console.log(addAge(parker, 15));
 
 输出还是：
 
-```
+```text
 { first: 'Peter', last: 'Parker', age: 15 }
 ```
 
 新加入的属性未能打印出来，这时，通过解构语法中的`...`操作符可以很好的解决这一问题：
 
-```js
+```javascript
 const addAge = function(person, theAge) {
     return {...person, last: person.last.toUpperCase(), age: theAge };
 }
@@ -581,5 +580,4 @@ const parker = { first: 'Peter', last: 'Parker',
 
 console.log(addAge(parker, 15));
 ```
-
 

@@ -1,4 +1,4 @@
-# 函数参数
+# 函数&Arguments
 
 本章将回顾一下`arguments`及其强大之处和存在的问题
 
@@ -6,7 +6,7 @@
 
 看一个例子：
 
-```js
+```javascript
     const max = function(a, b) {
     if (a > b) {
         return a;
@@ -20,7 +20,7 @@ console.log(max(2, 7, 1));
 
 虽然我们的函数只定义了两个参数，但如果传入三个参数，一样可以得出结果：
 
-```js
+```javascript
 3
 4
 7
@@ -30,7 +30,7 @@ console.log(max(2, 7, 1));
 
 所有入参可以在函数内部通过`arguments`获取，举例说明其用法：
 
-```js
+```javascript
 const max = function() {
     console.log(arguments instanceof Array);
     let large = arguments[0];
@@ -46,22 +46,22 @@ console.log(max(2, 1, 7, 4));
 
 该版本的`max()`函数没有明确定义入参，此时对于入参的数量没有限定，输出结果为：
 
-```
+```text
 false
 7
 ```
 
 尽管`arguments`被广泛用于JS中，但仍有很多问题：
 
-- 方法无法传递出清晰的意图--更重要的是会造成误导。看起来函数没有出现任何参数，但却在执行过程中进行了使用。
-- `arguments`是一个类数组对象--它用起来类似数组，但仅仅只是表面上。
-- 代码无法向使用Array那样优雅的编写。
+* 方法无法传递出清晰的意图--更重要的是会造成误导。看起来函数没有出现任何参数，但却在执行过程中进行了使用。
+* `arguments`是一个类数组对象--它用起来类似数组，但仅仅只是表面上。
+* 代码无法向使用Array那样优雅的编写。
 
 ## 使用Rest参数
 
 Rest参数可以使用{...}来进行占位，且Rest参数的数据类型是Array。将此前的`max()`函数进行改造：
 
-```js
+```javascript
 const max = function(...values) {
     console.log(values instanceof Array);
     let large = values[0];
@@ -77,14 +77,14 @@ console.log(max(2, 1, 7, 4));
 
 此时`values`是一个数组，结果为：
 
-```
+```text
 true
 7
 ```
 
 这意味着我们可以使用一些Array特有的方法进行优化：
 
-```js
+```javascript
 const max = function(...values) {
     return values.reduce((large, e) => large > e ? large : e, values[0]);
 };
@@ -94,9 +94,9 @@ const max = function(...values) {
 
 JS对于Rest参数有一些合理的规则需要注意：
 
-- rest参数必须在参数的最后。
-- 函数参数中最多只能有一个rest参数。
-- rest参数中仅包含未明确定义的参数。
+* rest参数必须在参数的最后。
+* 函数参数中最多只能有一个rest参数。
+* rest参数中仅包含未明确定义的参数。
 
 ## 解构操作
 
@@ -104,7 +104,7 @@ JS对于Rest参数有一些合理的规则需要注意：
 
 已知一个`greet`函数：
 
-```js
+```javascript
 const greet = function(...names) {
     console.log('hello ' + names.join(', '));
 };
@@ -112,7 +112,7 @@ const greet = function(...names) {
 
 如果有两个独立的参数，可以这样传递：
 
-```js
+```javascript
 const jack = 'Jack';
 const jill = 'Jill';
 greet(jack, jill);
@@ -120,14 +120,14 @@ greet(jack, jill);
 
 如果参数在一个数组中，可以这样：
 
-```js
+```javascript
 const tj = ['Tom', 'Jerry'];
 greet(tj[0], tj[1]);
 ```
 
 虽然可以使用，但不够优雅，这是可以使用解构操作：
 
-```js
+```javascript
 greet(...tj);
 ```
 
@@ -135,13 +135,13 @@ greet(...tj);
 
 解构操作的出现让`applay()`函数不在需要：
 
-```js
+```javascript
 greet.apply(null, tj); //no more stinky null
 ```
 
 解构操作还能将一个数组解构赋值到离散的参数中：
 
-```js
+```javascript
 const names1 = ['Laurel', 'Hardy', 'Todd'];
 const names2 = ['Rock'];
 const sayHello = function(name1, name2) {
@@ -155,7 +155,7 @@ sayHello(...names2);
 
 我们同样可以将解构操作和离散参数组合使用：
 
-```js
+```javascript
 const mixed = function(name1, name2, ...names) {
     console.log('name1: ' + name1);
     console.log('name2: ' + name2);
@@ -166,22 +166,22 @@ mixed('Tom', ...['Jerry', 'Tyke', 'Spike']);
 
 结果为：
 
-```
+```text
 name1: Tom
 name2: Jerry
 names: Tyke,Spike
 ```
 
-applay()函数只能用于函数调用，对于构造函数却无能为力，而解构操作却没有这些限制：
+applay\(\)函数只能用于函数调用，对于构造函数却无能为力，而解构操作却没有这些限制：
 
-```js
+```javascript
 const patternAndFlags = ['r', 'i'];
 const regExp = new RegExp(...patternAndFlags);
 ```
 
 解构赋值同样可以用在复制，连接和操作数组：
 
-```js
+```javascript
 const names1 = ['Tom', 'Jerry'];
 const names2 = ['Butch', 'Spike', 'Tyke'];
 console.log([...names1, 'Brooke']);
@@ -191,7 +191,7 @@ console.log([...names2, 'Meathead', ...names1]);
 
 结果为：
 
-```
+```text
 [ 'Tom', 'Jerry', 'Brooke' ]
 [ 'Tom', 'Jerry', 'Butch', 'Spike', 'Tyke' ]
 [ 'Butch', 'Spike', 'Tyke', 'Meathead', 'Tom', 'Jerry' ]
@@ -199,7 +199,7 @@ console.log([...names2, 'Meathead', ...names1]);
 
 解构操作还有一个令人惊艳的功能，它可以用于复制对象的内容并可以选择增加新的属性或内容。
 
-```js
+```javascript
 const sam = { name: 'Sam', age: 2 };
 console.log(sam);
 console.log({...sam, age: 3});
@@ -209,7 +209,7 @@ console.log(sam);
 
 输出：
 
-```
+```text
 { name: 'Sam', age: 2 }
 { name: 'Sam', age: 3 }
 { name: 'Sam', age: 4, height: 100 }
@@ -222,13 +222,13 @@ console.log(sam);
 
 我们可以通过如下三种方式从默认参数中获益：
 
-- 作为函数的使用者，我们不必额外传入和默认值一样的参数值。
-- 作为函数的作者，可以更自由的对函数进行升级，而不用影响既存代码。
-- 我们可以抵消JS中没有函数重载的缺陷。
+* 作为函数的使用者，我们不必额外传入和默认值一样的参数值。
+* 作为函数的作者，可以更自由的对函数进行升级，而不用影响既存代码。
+* 我们可以抵消JS中没有函数重载的缺陷。
 
 定义一个函数用于对书籍数组进行排序：
 
-```js
+```javascript
 const sortByTitle = function(books) {
     const byTitle = function(book1, book2) {
         return book1.title.localeCompare(book2.title);
@@ -241,7 +241,7 @@ const sortByTitle = function(books) {
 
 输入参数如下：
 
-```js
+```javascript
 const books = [
     { title: 'Who Moved My Cheese' },
     { title: 'Great Expectations' },
@@ -252,7 +252,7 @@ console.log(sortByTitle(books));
 
 输出为:
 
-```
+```text
 [ { title: 'Great Expectations' },
     { title: 'The Power of Positive Thinking' },
     { title: 'Who Moved My Cheese' } ]
@@ -264,7 +264,7 @@ console.log(sortByTitle(books));
 
 用默认值重新改造：
 
-```js
+```javascript
 const sortByTitle = function(books, ascending = true) {
     const multiplier = ascending ? 1 : -1;
     const byTitle = function(book1, book2) {
@@ -279,7 +279,7 @@ console.log(sortByTitle(books, false));
 
 输出为：
 
-```
+```text
 [ { title: 'Great Expectations' },
 { title: 'The Power of Positive Thinking' },
 { title: 'Who Moved My Cheese' } ]
@@ -292,7 +292,7 @@ console.log(sortByTitle(books, false));
 
 一个函数可以有任意多个默认参数。例如：
 
-```js
+```javascript
 const fetchData = function(
     id,
     location = { host: 'localhost', port: 443 },
@@ -304,7 +304,7 @@ const fetchData = function(
 
 上面的代码中，后两个参数均有默认参数值，调用方法可以是：
 
-```js
+```javascript
 fetchData(1, { host: 'agiledeveloper', port: 404 }, 'books');
 fetchData(1, { host: 'agiledeveloper', port: 404 });
 fetchData(2);
@@ -316,15 +316,13 @@ fetchData(2);
 
 这是就需要在对应位置传入`undefined`，规则如下：
 
-- 若有效值传入默认参数，则使用该传入值。
-
-- 若传入`null`，则该参数的值为`null`。
-
-- 若传入`undefined`，则使用默认值进行替换。
+* 若有效值传入默认参数，则使用该传入值。
+* 若传入`null`，则该参数的值为`null`。
+* 若传入`undefined`，则使用默认值进行替换。
 
 根据上述规则，可以按如下方式调用：
 
-```js
+```javascript
 fetchData(3, undefined, 'books');
 ```
 
@@ -332,7 +330,7 @@ fetchData(3, undefined, 'books');
 
 默认值不止可以设置为字面量，还可以是一个表达式：
 
-```js
+```javascript
 const fileTax = function(papers, dateOfFiling = new Date()) {
     console.log('dateOfFiling: ' + dateOfFiling.getFullYear());
 };
@@ -343,14 +341,14 @@ fileTax('stuff');
 
 结果为：
 
-```
+```text
 dateOfFiling: 2016
 dateOfFiling: 2018
 ```
 
 表达式计算默认值时，可能会用到左边的参数值：
 
-```js
+```javascript
 const computeTax = function(amount,
     stateTax = 15, localTax = stateTax * .10) {
     console.log('stateTax: ' + stateTax + ' localTax: ' + localTax);
@@ -363,7 +361,7 @@ computeTax(100);
 
 结果为:
 
-```
+```text
 stateTax: 10 localTax: 2
 stateTax: 10 localTax: 1
 stateTax: 15 localTax: 1.5
@@ -371,21 +369,21 @@ stateTax: 15 localTax: 1.5
 
 **不要让参数表达式使用右侧参数**，将
 
-```js
+```javascript
 const computeTax = function(amount,
     stateTax = 15, localTax = stateTax * .10) {
 ```
 
 修改为：
 
-```js
+```javascript
 const computeTax = function(amount,
     stateTax = localTax * 10, localTax = stateTax * .10) {
 ```
 
 这时前两个调用不会报错，但最后一个调用会抛出如下错误：
 
-```
+```text
 stateTax: 10 localTax: 2
 stateTax: 10 localTax: 1
 ...
@@ -398,12 +396,12 @@ ReferenceError: localTax is not defined
 
 Rest参数有一些规则需要遵守：
 
-- 最多有一个Rest参数
-- Rest参数必须在参数列表的最后
+* 最多有一个Rest参数
+* Rest参数必须在参数列表的最后
 
 当默认值参数和Rest参数同时使用时会发生什么呢？来看个栗子：
 
-```js
+```javascript
 const product = function(first, second = 1, ...moreValues) {
     console.log(first + ', ' + second + ', length:' + moreValues.length); 
 };
@@ -413,7 +411,7 @@ const product = function(first, second = 1, ...moreValues) {
 
 这是可能会想是否可以给Rest参数赋予默认值呢？我们来尝试一下：
 
-```js
+```javascript
 //BROKEN CODE const notAllowed = function(first, second, ...moreValues = [1, 2, 3]) {}
 
 If we do not provide any values for the rest parameter, then we want it to assume the values [1, 2, 3]. And JavaScript says:
@@ -425,3 +423,4 @@ SyntaxError: Rest parameter may not have a default initializer
 ```
 
 这时JS会抛出错误，也就是说Rest参数在未传递参数时，会默认是一个空数组，而不是使用默认值代替。
+
