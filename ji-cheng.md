@@ -35,7 +35,7 @@ JS构建了一个原型链。以之前代码为例，结果为：
 
 继承的目的是复用方法和属性。当从一个对象中获取一个属性或者方法时，这个对象可以通过委托请求其原型对象的方式复用原型上的成员。然而获取和修改一个属性的行为却存在着巨大的差异。
 
-```js
+```javascript
 class Counter {}
 
 Counter.prototype.count = 0;
@@ -55,7 +55,7 @@ console.log(counter2.count);
 
 输出：
 
-```
+```text
 0
 0
 1
@@ -66,13 +66,13 @@ console.log(counter2.count);
 
 单从结果来看，`Counter`的实例共享原型对象，但是改变一个对象却不会影响另一个。这是什么原因呢？答案就在JS如何使用原型上：
 
-**Gets深度查找，但是sets却总是浅的(Gets search deep, but sets are always shallow)**。
+**Gets深度查找，但是sets却总是浅的\(Gets search deep, but sets are always shallow\)**。
 
 当我们尝试获取实例的成员时，如果实例有该成员，则立即返回，如果没有，则向前查询该实例的原型对象，这个过程将在原型链上不断执行，知道找到这个成员，或者到了原型链的末端。而当实例上执行`set`方法时，`set`只发生在该实例上。
 
 在本例中，执行`increment()`后，实例`counter1`上拥有了属性`count`，此时`counter1`执行`counter1.count`时，直接返回实例对象的`count`值。测试代码如下：
 
-```js
+```javascript
 const counter1 = new Counter();
 
 console.log(
@@ -85,7 +85,7 @@ console.log(`After increment instance has: ${Object.keys(counter1)}`);
 
 执行结果：
 
-```
+```text
 Prototype has: count,increment
 Before increment instance has:
 After increment instance has: count
@@ -99,7 +99,7 @@ ES6极大的简化了创建原型继承的过程，并且为重写方法提供�
 
 首先需要一个基类作为一个原型以及一个衍生类来复用这个原型：
 
-```js
+```javascript
 class Person {
     constructor(firstName, lastName) {
         console.log('initializing Person fields');
@@ -119,7 +119,7 @@ class Person {
 
 创建`ReputablePerson`类来继承`Person`类
 
-```js
+```javascript
 class ReputablePerson extends Person {
     constructor(firstName, lastName, rating) {
         console.log('creating a ReputablePerson');
@@ -137,7 +137,7 @@ class ReputablePerson extends Person {
 
 我们在`ReputablePerson`类中重写`toString()`方法和`firstName`属性：
 
-```js
+```javascript
 toString() {
     return `${super.toString()} Rating: ${this.rating}`;
 }
@@ -149,23 +149,20 @@ get fullName() {
 
 由于方法或属性可能在父类中已经实现，在子类或实例中我们需要小心的使用合适的语法来获取正确的结果。下面是一些我们需要遵循的规则：
 
-- 如果要获取实例或子类中而非父类中的成员，使用`this` -- 记住`this`是动态作用域。
-
-- 如果一个成员只在父类中存在，使用`this`。如果将来你在子类中覆盖了该成员，则优先使用子类中的成员。
-
-- 如果想将子类的成员传递给父类，并能够从父类获取，使用`super()`。
+* 如果要获取实例或子类中而非父类中的成员，使用`this` -- 记住`this`是动态作用域。
+* 如果一个成员只在父类中存在，使用`this`。如果将来你在子类中覆盖了该成员，则优先使用子类中的成员。
+* 如果想将子类的成员传递给父类，并能够从父类获取，使用`super()`。
 
 在重写的`toString()`方法中，我们使用了`super`来调用父类的`toString()`方法。`fullName`的重写也与之类似。但是调用弗雷德`surname`时，却不必加入`super`前缀，因为在子类中没有该方法，因此不会隐藏父类的`surname`方法。
 
 大多数情况下使用`this`是安全的，也是推荐的，除了下面的情况我们需要使用`super`前缀：
 
-- 需要访问弗雷德成员，且在子类中有同样名称的成员
-
-- 需要传递成员到父类，并在子类中访问
+* 需要访问弗雷德成员，且在子类中有同样名称的成员
+* 需要传递成员到父类，并在子类中访问
 
 最后让我们测试一下重写的代码：
 
-```js
+```javascript
 const alan = new ReputablePerson('Alan', 'Turing', 5);
 console.log(alan.toString());
 console.log(alan.fullName);
@@ -173,7 +170,7 @@ console.log(alan.fullName);
 
 结果为：
 
-```
+```text
 creating a ReputablePerson
 initializing Person fields
 Name: Alan Turing Rating: 5
@@ -186,7 +183,7 @@ Reputed Turing, Alan Turing
 
 首先写一个函数，给定一个对象，打印该对象，然后打印其原型链：
 
-```js
+```javascript
 const printPrototypeHierarchy = function(instance) {
     if(instance !== null) {
         console.log(instance);
@@ -197,7 +194,7 @@ const printPrototypeHierarchy = function(instance) {
 
 利用递归实现当前实例原型对象的打印，直到原型链结束。接下来通过`ReputablePerson`的实例来调用：
 
-```js
+```javascript
 const alan = new ReputablePerson('Alan', 'Turing', 5);
 
 printPrototypeHierarchy(alan);
@@ -205,7 +202,7 @@ printPrototypeHierarchy(alan);
 
 输出结果为：
 
-```
+```text
 ReputablePerson { firstName: 'Alan', lastName: 'Turing', rating: 5 }
 ReputablePerson {}
 Person {}
@@ -218,7 +215,7 @@ Person {}
 
 与基于类的继承不同，原型链并非是不变的，我们可以修改原型链。
 
-```js
+```javascript
 class ComputerWiz {}
 
 Reflect.setPrototypeOf(Reflect.getPrototypeOf(alan), ComputerWiz.prototype);
@@ -230,7 +227,7 @@ printPrototypeHierarchy(alan);
 
 不同于修改实例`alan`的原型，这里修改了实例`alan`原型的原型。输出如下：
 
-```
+```text
 ...after change of prototype...
 ReputablePerson { firstName: 'Alan', lastName: 'Turing', rating: 5 }
 ReputablePerson {}
@@ -242,7 +239,7 @@ ComputerWiz {}
 
 当你使用类继承且未定义构造器时，JS会提供默认构造器，且在构造器中自动调用`super`方法，并传递所有参数到父类。
 
-```js
+```javascript
 class AwesomePerson extends Person {
     get fullName() {
         return `Awesome ${super.fullName}`;
@@ -255,7 +252,7 @@ console.log(ball.fullName);
 
 输出：
 
-```
+```text
 initializing Person fields
 Awesome Lucille Ball
 ```
@@ -264,7 +261,7 @@ Awesome Lucille Ball
 
 为了更好的兼容性，ES5的语法创建的类一样可以实现类继承。举个例子：
 
-```js
+```javascript
 function LegacyClass(value) {
     this.value = value;
 }
@@ -282,10 +279,9 @@ console.log(new NewClass(1));
 
 ### 两个内置类及其不同的行为
 
-
 来看一个例子：
 
-```js
+```javascript
 class MyString extends String {}
 class MyArray extends Array {}
 
@@ -298,7 +294,7 @@ console.log(`instanceof MyArray?: ${concArray instanceof MyArray}`);
 
 结果为：
 
-```
+```text
 instanceof MyString?: false
 instanceof MyArray?: true
 ```
@@ -307,15 +303,13 @@ instanceof MyArray?: true
 
 接下来我们需要在父类中实现一个方法：
 
-- 使返回实例类型和父类相同
-
-- 使返回实例类型和子类相同
-
-- 让子类决定类型应该是什么
+* 使返回实例类型和父类相同
+* 使返回实例类型和子类相同
+* 让子类决定类型应该是什么
 
 #### 指向父类类型
 
-```js
+```javascript
 class Names {
     constructor(...names) {
         this.names = names;
@@ -335,7 +329,7 @@ console.log(specializedNames.filter1(name => name.startsWith('Java')));
 
 结果为：
 
-```
+```text
 Names { names: [ 'Java', 'JavaScript' ] }
 ```
 
@@ -343,7 +337,7 @@ Names { names: [ 'Java', 'JavaScript' ] }
 
 #### 选择基于运行时类型
 
-```js
+```javascript
 filter2(selector) {
     const constructor = Reflect.getPrototypeOf(this).constructor;
 
@@ -353,13 +347,13 @@ filter2(selector) {
 
 执行
 
-```js
+```javascript
 console.log(specializedNames.filter2(name => name.startsWith('Java')));
 ```
 
 输出：
 
-```
+```text
 SpecializedNames { names: [ 'Java', 'JavaScript' ] }
 ```
 
@@ -367,7 +361,7 @@ SpecializedNames { names: [ 'Java', 'JavaScript' ] }
 
 当我们获得一个构造器时，我们可以从中获得`static`方法和属性。我们将使用`static`属性`kindHint`来告诉我们返回的实例类型。
 
-```js
+```javascript
 filter3(selector) {
     const constructor =
         Reflect.getPrototypeOf(this).constructor.kindHint ||
@@ -379,19 +373,19 @@ filter3(selector) {
 
 直接执行：
 
-```js
+```javascript
 console.log(specializedNames.filter3(name => name.startsWith('Java')));
 ```
 
 输出：
 
-```
+```text
 SpecializedNames { names: [ 'Java', 'JavaScript' ] }
 ```
 
 接下来修改`SpecializedNames`类：
 
-```js
+```javascript
 class SpecializedNames extends Names {
     static get kindHint() {
         return Names;
@@ -401,7 +395,7 @@ class SpecializedNames extends Names {
 
 输出变为：
 
-```
+```text
 Names { names: [ 'Java', 'JavaScript' ] }
 ```
 
@@ -413,7 +407,7 @@ Names { names: [ 'Java', 'JavaScript' ] }
 
 `Symbol.species`用于传递构造器来创建衍生对象。使用它改造`SpecializedName`：
 
-```js
+```javascript
 class SpecializedNames extends Names {
     static get [Symbol.species]() {
         return Names;
@@ -423,7 +417,7 @@ class SpecializedNames extends Names {
 
 修改`filter3()`：
 
-```js
+```javascript
 filter3(selector) {
     const constructor =
         Reflect.getPrototypeOf(this).constructor[Symbol.species] ||
@@ -435,7 +429,7 @@ filter3(selector) {
 
 此前`Array`类也使用了`Symbol.species`：
 
-```js
+```javascript
 class MyArray extends Array {
     static get [Symbol.species]() { return Array; }
 }
@@ -446,7 +440,7 @@ console.log(`instanceof MyArray?: ${concArray instanceof MyArray}`);
 
 此时，结果变为：
 
-```
+```text
 instanceof MyArray?: false
 ```
 
