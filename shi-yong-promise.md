@@ -4,7 +4,7 @@
 
 ES6中`promise`的出现取代了回调函数。一段返回`promise`的代码是非闭塞的，并且最终将会通过`promise`向调用者返回一个结果或是一个错误。
 
-## 并非由于回调地狱
+## 回调地狱
 
 来看一个例子：
 
@@ -41,3 +41,13 @@ const displayFileContent = function(pathToFile) {
 - 回调参数的顺序没有一致性
 
 - 回调没有一致的方法处理错误
+
+## Promise的作用
+
+promise有且仅有三种状态：pending，resolved或者rejected。
+
+若异步函数未执行结束，promise将处于pending状态；若成功进行完毕，处于resolved状态，并产生执行的结果；若执行失败，则变为rejected状态，并产生错误信息。
+
+promise状态的变化是不可逆的，只能有pengding变为resolved，或者pending变为rejected。
+
+使用promise可以方便的将异步函数作为参数进行传递，从而更优雅的实现函数式编程。
