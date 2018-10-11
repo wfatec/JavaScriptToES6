@@ -58,15 +58,13 @@ Promise提供了两个独立通道来进行通信：
 
 ![](.gitbook/assets/bu-huo%20%281%29.PNG)
 
-
 当A返回数据后，执行`then()`函数B，若B执行reject，则C被跳过，直接执行`catch()`函数D，若D依旧抛出一个异常，则跳过E，直接执行F，若这时F返回一段数据，则被JS包装为promise，并传递到下一个`then()`函数G。简而言之，一个resolved的promise在链上寻找下一个`then()`函数，而一个rejected的promise则寻找下一个`catch()`函数。
-
 
 ## 创建Promise
 
 当写一个异步函数时，可以创建一个promise，这个promise可以是三种状态之一：resolved， rejected，或者pending状态。通过下面的例子我们来使用者三种方法：
 
-```js
+```javascript
 const computeSqrtAsync = function(number) {
     if(number < 0) {
         return Promise.reject('no negative number, please.');
@@ -84,7 +82,7 @@ const computeSqrtAsync = function(number) {
 
 `computeSqrtAsync()`函数返回一个promise实例，这个promise实例的状态根据入参来决定。测试一下效果：
 
-```js
+```javascript
 const forNegative1 = computeSqrtAsync(-1);
 const forZero = computeSqrtAsync(0);
 const forSixteen = computeSqrtAsync(16);
@@ -96,7 +94,7 @@ console.log(forSixteen);
 
 结果将输出不同的状态：
 
-```
+```text
 Promise { <rejected> 'no negative number, please.' }
 Promise { 0 }
 Promise { <pending> }
@@ -104,7 +102,7 @@ Promise { <pending> }
 
 接下来实现一个函数入参为一个promise，若resolve则打印其结果，若reject则打印错误信息：
 
-```js
+```javascript
 const reportOnPromise = function(promise) {
     promise
         .then(result => console.log(`result is ${result}.`))
@@ -118,7 +116,7 @@ reportOnPromise(forSixteen);
 
 结果为：
 
-```
+```text
 result is 0.
 ERROR: no negative number, please.
 result is 4.
@@ -130,13 +128,13 @@ result is 4.
 
 `fs-extra`将`fs`包进行了promise化，首先安装`fs-extra`包：
 
-```
+```text
 npm install fs-extra
 ```
 
 使用`fs-extra`编写实例：
 
-```js
+```javascript
 const fs = require('fs-extra');
 
 const countLinesWithText = function(pathToFile) {
@@ -159,21 +157,18 @@ const checkLineExists = function(count) {
 };
 ```
 
-
 ## 执行多个Promise
-
 
 JS提供了两种选项来处理多个异步任务：
 
-- 让这些promise进行竞争，并选择最先resolve或reject的一个
-
-- 等所有任务resolve或是有一个执行reject
+* 让这些promise进行竞争，并选择最先resolve或reject的一个
+* 等所有任务resolve或是有一个执行reject
 
 ### Promise竞争
 
 `race()`是promise的静态方法，首先创建两个promise对象：
 
-```js
+```javascript
 const createPromise = function(timeInMillis) {
     return new Promise(function(resolve, reject) {
         setTimeout(() => resolve(timeInMillis), timeInMillis);
@@ -189,11 +184,11 @@ const createTimeout = function(timeInMillis) {
 
 接下来使用`race()`进行测试：
 
-```js
+```javascript
 Promise.race([createPromise(1000), createPromise(2000), createTimeout(3000)])
     .then(result => console.log(`completed after ${result} MS`))
     .catch(error => console.log(`ERROR: ${error}`));
-    
+
 Promise.race([createPromise(3500), createPromise(4000), createTimeout(2000)])
     .then(result => console.log(`completed after ${result} MS`))
     .catch(error => console.log(`ERROR: ${error}`));
@@ -201,7 +196,7 @@ Promise.race([createPromise(3500), createPromise(4000), createTimeout(2000)])
 
 结果为：
 
-```
+```text
 completed after 1000 MS
 ERROR: timeout after 2000 MS
 ```
@@ -210,7 +205,7 @@ ERROR: timeout after 2000 MS
 
 promise的静态方法`all()`获取一个promise数组，并传递一个resolved状态的返回结果数组到`then()`函数。举个例子：
 
-```js
+```javascript
 'use strict';
 
 const cluster = require('cluster');
@@ -232,7 +227,7 @@ const isPrime = function(number) {
 
 const countNumberOfPrimes = function(number) {
     let count = 0;
-    
+
     for(let i = 1; i <= number; i++) {
         if(isPrime(i)) {
             count++;
@@ -263,13 +258,13 @@ if(cluster.isMaster) {
 
 要想使用这个服务首先安装`fs-extra`以及`request-promise`：
 
-```
+```text
 npm install fs-extra request request-promise
 ```
 
 具体实现如下：
 
-```js
+```javascript
 const fs = require('fs-extra');
 const request = require('request-promise');
 
@@ -285,7 +280,7 @@ const countPrimes = function(number) {
 
 下面再来看一个实例，假设我们有一个文件，每一行有一个数字，我们想要确定每一行的数字内有多少个质数，可以这样做：
 
-```js
+```javascript
 const countPrimesForEachLine = function(pathToFile) {
     fs.readFile(pathToFile)
         .then(content => content.toString())
@@ -298,7 +293,7 @@ const countPrimesForEachLine = function(pathToFile) {
 
 现在创建两个文件，第一个是`numbers.txt`，每一行为有效值：
 
-```
+```text
 100
 1000
 5000
@@ -306,7 +301,7 @@ const countPrimesForEachLine = function(pathToFile) {
 
 第二个为`numbers-with-error.txt`，有一行不是有效数字：
 
-```
+```text
 100
 invalid text
 5000
@@ -314,14 +309,14 @@ invalid text
 
 执行`countPrimesForEachLine()`：
 
-```js
+```javascript
 countPrimesForEachLine('numbers.txt');
 countPrimesForEachLine('numbers-with-error.txt');
 ```
 
 由于含有无效数字，一旦有promise抛出错误，则`all()`立刻停止，故先执行完毕：
 
-```
+```text
 'invalid text' is not a number
 [ 'Number of primes from 1 to 100 is 25',
 'Number of primes from 1 to 1000 is 168',
@@ -334,13 +329,12 @@ countPrimesForEachLine('numbers-with-error.txt');
 
 `async`和`await`的出现使得同步和异步代码的写法具有了一致性。使用该功能有两个规则：
 
-- 要想像同步函数一样编写异步函数，需要为异步函数加上`async`关键字
-
-- 要想像调用同步函数一样调用异步函数，需要在调用前加上`await`关键字。且`await`关键字只能出现在`async`标注的函数内部
+* 要想像同步函数一样编写异步函数，需要为异步函数加上`async`关键字
+* 要想像调用同步函数一样调用异步函数，需要在调用前加上`await`关键字。且`await`关键字只能出现在`async`标注的函数内部
 
 现在分别创建一个同步函数和异步函数：
 
-```js
+```javascript
 const computeSync = function(number) {
     if(number < 0) {
         throw new Error('no negative, please');
@@ -360,7 +354,7 @@ const computeAsync = function(number) {
 
 接下来对之前的函数进行调用：
 
-```js
+```javascript
 const callComputeSync = function(number) {
     try {
         const result = computeSync(number);
@@ -379,7 +373,7 @@ const callComputeAsync = function(number) {
 
 我们发现两者的写法存在很大差异。如果用`async`和`await`呢？
 
-```js
+```javascript
 const callCompute = async function(number) {
     try {
         const result = await computeAsync(number);

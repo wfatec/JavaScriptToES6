@@ -11,4 +11,5 @@
 * [继承](ji-cheng.md)
 * [使用Modules](shi-yong-modules.md)
 * [使用Promise](shi-yong-promise.md)
+* [探索元编程](tan-suo-yuan-bian-cheng.md)
 
