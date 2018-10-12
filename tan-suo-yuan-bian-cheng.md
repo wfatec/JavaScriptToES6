@@ -14,7 +14,7 @@
 
 ### 注入 vs. 合成
 
-元编程带来了两个概念：注入(injection)和合成(synthesis)。前者比较简单，并且JS从一开始就有这种能力。后者更加复杂也更加强大，直到最近JS才具备这样的能力。
+元编程带来了两个概念：注入\(injection\)和合成\(synthesis\)。前者比较简单，并且JS从一开始就有这种能力。后者更加复杂也更加强大，直到最近JS才具备这样的能力。
 
 注入是一种可以向一个类中增加或替换特定的方法或属性的技术。设想一下你想知道一个指定日期是否是闰年。你当然可以从date对象中提取其年份，然后传递到一个工具方法来告诉你给定年份是否为闰年。但是，如果我们能够使用`givenDate.isInLeapYear()`，那么显然会让问题更加简洁。而无需获取`Date`类的源码即可实现这个案例的能力，即元编程，更具体来说就是成员注入。
 
@@ -28,23 +28,20 @@
 
 记住一个Voltaire的一句名言：“能力越大，责任越大”。当时用元编程时：
 
-- 尽量少用，且只在绝对必要时使用。
-
-- 不要随意的在代码中使用注入或是合成方法。更好的构建自己的应用，让开发者能够在特定的位置找到和注入及合成相关的代码。当开发者发现一段不熟悉的方法调用时，能够更轻松的定位与元编程无关的代码。
-
-- 全面的代码检查。找一个同事来检查你的代码，多双眼睛的审视能够减少风险。
-
-- 严格的自动测试。
+* 尽量少用，且只在绝对必要时使用。
+* 不要随意的在代码中使用注入或是合成方法。更好的构建自己的应用，让开发者能够在特定的位置找到和注入及合成相关的代码。当开发者发现一段不熟悉的方法调用时，能够更轻松的定位与元编程无关的代码。
+* 全面的代码检查。找一个同事来检查你的代码，多双眼睛的审视能够减少风险。
+* 严格的自动测试。
 
 ## 动态获取
 
 当明确知道成员名称时，我们可以使用点语法，例如`sam.age`或者`sam.play()`来获取属性和方法。如果直到运行时才能知道成员名称，则可以使用`[]`语法，例如`sam[fieldName]`或`sam[methodName]()`。
 
-当使用[]时，尽量使用变量名，若直接使用字符串，转义工具以及代码压缩工具可能会将成员进行重命名，若[]中的名称和实际属性名不同，则可能会抛出错误。
+当使用\[\]时，尽量使用变量名，若直接使用字符串，转义工具以及代码压缩工具可能会将成员进行重命名，若\[\]中的名称和实际属性名不同，则可能会抛出错误。
 
 如果对找出`instance`实例中的所有成员感兴趣，可以使用`Object.keys(instance)`方法。之所以将方法名定为`keys`，是由于JS将对象看作是哈希表。或者，你可以使用`for member in instance`来遍历所有成员。让我们看一个实例：
 
-```js
+```javascript
 class Person {
     constructor(age) {
         this.age = age;
@@ -75,7 +72,7 @@ for(const property in sam) {
 
 结果为：
 
-```
+```text
 2
 The 2 year old is playing
 2
@@ -86,17 +83,17 @@ Property: age value: 2
 
 尽管`age`字段被`keys`展示出来，但是`constructor()`,`play()`方法以及`years`属性都未能显示出来。这是因为这些属性或方法并不是该对象本身的一部分，而是保存在对象的原型上。让我们使用`Object`的`getOwnPropertyName()`方法来查询原型：
 
-```js
+```javascript
 console.log(Object.getOwnPropertyNames(Reflect.getPrototypeOf(sam)));
 ```
 
-`getOwnPropertyName()`方法获取给定对象的所有字段，属性和方法(`hasOwnProperty()`获取对象的可枚举属性和方法，注意区别)，结果为：
+`getOwnPropertyName()`方法获取给定对象的所有字段，属性和方法\(`hasOwnProperty()`获取对象的可枚举属性和方法，注意区别\)，结果为：
 
-```
+```text
 [ 'constructor', 'play', 'years' ]
 ```
 
-拥有动态获取并迭代对象成员的能力，我们可以在运行时研究任何对象，这和在Java和C#中使用的反射机制非常类似。
+拥有动态获取并迭代对象成员的能力，我们可以在运行时研究任何对象，这和在Java和C\#中使用的反射机制非常类似。
 
 ## 成员注入
 
@@ -108,7 +105,7 @@ console.log(Object.getOwnPropertyNames(Reflect.getPrototypeOf(sam)));
 
 假设我们希望反转一个字符串，来检查给定字符串是否是一个回文：
 
-```js
+```javascript
 const text = new String('live');
 
 try {
@@ -120,13 +117,13 @@ try {
 
 此时并没有`reverse()`方法，因此抛出错误：
 
-```
+```text
 text.reverse is not a function
 ```
 
 在实例中注入方法非常简单，直接将函数赋值给任意喜欢的属性名:
 
-```js
+```javascript
 text.reverse = function() { return this.split('').reverse().join(''); };
 
 console.log(text.reverse());
@@ -134,13 +131,13 @@ console.log(text.reverse());
 
 结果为：
 
-```
+```text
 evil
 ```
 
 此时，我们只是在特定的实例上进行了方法注入，
 
-```js
+```javascript
 const anotherText = new String('rats');
 
 try {
@@ -152,7 +149,7 @@ try {
 
 此时，结果为：
 
-```
+```text
 anotherText.reverse is not a function
 ```
 
@@ -162,7 +159,7 @@ anotherText.reverse is not a function
 
 当我们向一个类的原型注入方法后，其所有实例将都用用该方法：
 
-```js
+```javascript
 'use strict';
 
 const text = new String('live');
@@ -179,7 +176,7 @@ console.log(primitiveText.reverse());
 
 结果为：
 
-```
+```text
 evil
 star
 trap
@@ -187,7 +184,7 @@ trap
 
 ### 注入一个属性
 
-注入字段(field)和方法时，你可以直接将值或函数赋值给你定义的成员名称，但是属性注入的情况大为不同。
+注入字段\(field\)和方法时，你可以直接将值或函数赋值给你定义的成员名称，但是属性注入的情况大为不同。
 
 当创建一个类时，我们像写方法一样写属性，使用`get`标注getters，而用`set`来标注setters。因此你可能想尝试像注入方法一样注入一个属性，并在代码中对应的位置增加`get`或者`set`；很遗憾，这不会生效。
 
@@ -195,7 +192,7 @@ trap
 
 下面是一个实例，向一个`Date`类的实例注入`isInLeapYear`属性：
 
-```js
+```javascript
 const today = new Date();
 
 Object.defineProperty(today, 'isInLeapYear', {
@@ -210,7 +207,7 @@ console.log(`${today.getFullYear()} is a leap year?: ${today.isInLeapYear}`);
 
 该属性是一个只读属性，因为我们这里只提供了一个getter，而没有setter。结果为：
 
-```
+```text
 2018 is a leap year?: false
 ```
 
@@ -218,7 +215,7 @@ console.log(`${today.getFullYear()} is a leap year?: ${today.isInLeapYear}`);
 
 将`today`替换为`Date.prototype`：
 
-```js
+```javascript
 Object.defineProperty(Date.prototype, 'isInLeapYear', {
     get: function() {
         const year = this.getFullYear();
@@ -234,7 +231,7 @@ for(const year of [2018, 2019, 2020, 2021]) {
 
 结果为：
 
-```
+```text
 2018 is not a leap year
 2019 is not a leap year
 2020 is a leap year
@@ -249,20 +246,20 @@ for(const year of [2018, 2019, 2020, 2021]) {
 
 首先，思考一下向一个已存在的类添加一组有用的属性。`Array`类提供了很多非常酷的方法，但是并没有一个优雅的途径来获取首尾的元素。我们将要向`Array`类注入`first`和`last`方法。首先新建一个数组：
 
-```js
+```javascript
 const langs = ['JavaScript', 'Ruby', 'Python', 'Clojure'];
 ```
 
 获取首尾元素可以这样：
 
-```js
+```javascript
 const firstElement = langs[0];
 const lastElement = langs[langs.length - 1]; //eh?
 ```
 
 但这样写不够人性化，接下来用注入的方式为`Array`添加方法：
 
-```js
+```javascript
 Object.defineProperties(Array.prototype, {
     first: {
         get: function() { return this[0]; },
@@ -279,7 +276,7 @@ Object.defineProperties(Array.prototype, {
 
 这时可以将代码修改为：
 
-```js
+```javascript
 const firstElement = langs.first;
 const lastElement = langs.last;
 
@@ -294,7 +291,7 @@ console.log(langs);
 
 检查其输出为：
 
-```
+```text
 JavaScript
 Clojure
 [ 'Modern JavaScript', 'Ruby', 'Python', 'ClojureScript' ]

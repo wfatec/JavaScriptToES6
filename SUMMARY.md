@@ -12,4 +12,5 @@
 * [使用Modules](shi-yong-modules.md)
 * [使用Promise](shi-yong-promise.md)
 * [探索元编程](tan-suo-yuan-bian-cheng.md)
+* [深入元编程](shen-ru-yuan-bian-cheng.md)
 
