@@ -287,4 +287,206 @@ const counterFactory = function() {
 };
 ```
 
-在函数中，我们用`Proxy.revocable()`代替`new Proxy()`来创建一个代理。和`Proxy`的构造器非常相似，`revocable()`方法以`target`和一个handler作为参数。然而构造器中调用`new`并返回一个`Proxy`实例不同，这里我们得到一个拥有两个属性的对象：`proxy`和`revoke`。`proxy`属性指向新创建的`Proxy`实例，`revoke`属性是一个函数的引用，该函数在调用时，将撤销使用该代理的权限，之后
+在函数中，我们用`Proxy.revocable()`代替`new Proxy()`来创建一个代理。和`Proxy`的构造器非常相似，`revocable()`方法以`target`和一个handler作为参数。然而构造器中调用`new`并返回一个`Proxy`实例不同，这里我们得到一个拥有两个属性的对象：`proxy`和`revoke`。`proxy`属性指向新创建的`Proxy`实例，`revoke`属性是一个函数的引用，该函数在调用时，将撤销使用该代理的权限，之后释放目标对象。
+
+下一步，在`counterFactory()`函数中延时调用revoke函数来撤销权限。最终，我们向`counterFactory()`的调用者返回这个代理。
+
+具体调用过程如下：
+
+```js
+const counter = counterFactory();
+
+const incrementAndDisplay = function() {
+    try {
+        counter.increment();
+        console.log(counter.count);
+        setTimeout(incrementAndDisplay, 20);
+    } catch(ex) {
+        console.log(ex.message);
+    }
+};
+
+incrementAndDisplay();
+```
+
+`incrementAndDisplay()`函数触发`counter`实例的`increment()`方法，展示计数器的值，以及延时调用另一个指向自身的异步调用。一旦这些调用中出现错误，则异常处理句柄将汇报此错误，并且不再产生延时调用。
+
+执行结果如下：
+
+```
+1
+2
+3
+4
+5
+Cannot perform 'get' on a proxy that has been revoked
+```
+
+当`counterFactory()`撤销函数被触发时，对于`increment()`的调用将产生严重的错误。
+
+该错误信息为"Cannot perform 'get' on a proxy…"，而不是说无法触发`'increment'`或是类似的信息。原因在之前的创建一个用于监听的Trap中已经提到过，`Proxy`中的`get()`句柄会被任意字段，属性，或是方法调用。
+
+在继续下一个主题之前，我们先快速对`counterFactory()`做一个重构来减少干扰项。在此函数中，我们有如下代码：
+
+```js
+const { proxy: counterProxy, revoke: revokeFunction } =
+    Proxy.revocable(new Counter(), {});
+```
+
+这里虽然也用了解构方法，但还是稍显累赘，可以直接使用属性名进行解构，简化为：
+
+```js
+const { proxy, revoke } = Proxy.revocable(new Counter(), {});
+
+const leaseTime = 100;
+setTimeout(revoke, leaseTime);
+
+return proxy;
+```
+
+看起来清爽多了！
+
+### 使用Proxy拦截函数
+
+面向切片编程(AOP)是元编程的一个特殊案例，函数调用可能会根据通知(advice)被拦截。一个advice是一段在特定上下文中执行的代码。我们经常会接收三种类型的advice：好的，坏的，和未经请求的。AOP也有三种advice：
+
+- Before advice：在目标函数调用前执行
+
+- After advice：在目标函数调用之后执行
+
+- Around advice：替代目标函数执行
+
+由于作者的过度使用，日志是AOP advices中最声名狼藉的一个例子。我们可能向函数注入打印输入参数的调用，用于获取信息和调试。或者我们可能在返回前，打印函数执行的结果。
+
+AOP advices还有很多其它用途。例如监控执行函数调用的上下文，检验调用的权限，更改函数的入参，或是将URL从生产环境改为测试服务器。总之AOP的使用场景非常的多，下面我们来用一个例子来看看如何创建advices。
+
+`Proxy`可以像advices一样用于执行AOP。来看下面的例子：
+
+```js
+const greet = function(message, name) {
+    return `${message} ${name}!`;
+};
+
+const invokeGreet = function(func, name) {
+    console.log(func('hi', name));
+};
+
+invokeGreet(greet, 'Bob');
+```
+
+`invokeGreet()`函数接收一个函数引用作为第一个参数，接收name作为第二个参数。然后调用传入的函数并打印结果。不用AOP advices时，结果如下：
+
+```
+hi Bob!
+```
+
+#### 执行一个运行前通知
+
+
+
+此前传递给`greet()`的消息为小写的`hi`。现在我们使用AOP前置通知来实现首字母大写。我们不会改变函数本身，而是通过拦截和转化第一个参数，然后向前传递给`greet()`：
+
+```js
+const beforeAdvice = new Proxy(greet, {
+    apply: function(target, thisArg, args) {
+        const message = args[0];
+        const msgInCaps = message[0].toUpperCase() + message.slice(1);
+
+        return Reflect.apply(target, thisArg, [msgInCaps, ...args.slice(1)]);
+    }
+});
+
+invokeGreet(beforeAdvice, 'Bob');
+```
+
+在handler中，我们重写了`apply()`函数。默认情况下，该函数会调用`Reflect.apply()`。然而，在重写过程中，我们在调用传递到，目标对象的方法前，拦截并转化了参数。结果为：
+
+```
+Hi Bob!
+```
+
+#### 执行一个运行后通知
+
+运行后通知可以选择性的转换函数调用的结果。
+
+接下来我们将为`greet()`函数重新编写运行前后的通知。我们将在调用前更改`message`参数，并在调用后，在返回得调用者之前，将调用结果转化为大写。
+
+```js
+const beforeAndAfterAdvice = new Proxy(greet, {
+    apply: function(target, thisArg, args) {
+        const newArguments = ['Howdy', ...args.slice(1)];
+        const result = Reflect.apply(target, thisArg, newArguments);
+
+        return result.toUpperCase();
+    }
+});
+
+invokeGreet(beforeAndAfterAdvice, 'Bob');
+```
+
+结果为：
+
+```
+HOWDY BOB!
+```
+
+当然，为了提高鲁棒性，我们可以加入`try-finally`或者`try-catch-finally`。
+
+#### 执行一个替代通知
+
+它劫持了调用，并提供了一个替代的执行过程。
+
+来看一个例子：
+
+```js
+const aroundAdvice = new Proxy(greet, {
+    apply: function(target, thisArg, args) {
+        if(args[1] === 'Doc') {
+            return "What's up, Doc?";
+        }
+        else {
+            return Reflect.apply(target, thisArg, args);
+        }
+    }
+});
+
+invokeGreet(aroundAdvice, 'Bob');
+invokeGreet(aroundAdvice, 'Doc');
+```
+
+执行结果如下：
+
+```
+hi Bob!
+What's up, Doc?
+```
+
+## 使用Proxy合成成员
+
+首先使用`Map`创建一个例子来保存一组编程语言及其作者的映射：
+
+```js
+const langsAndAuthors = new Map([
+    ['JavaScript', 'Eich'], ['Java', 'Gosling']]);
+
+const accessLangsMap = function(map) {
+    console.log(`Number of languages: ${map.size}`);
+    console.log(`Author of JavaScript: ${map.get('JavaScript')}`);
+    console.log(`Asking fluently: ${map.JavaScript}`);
+};
+
+accessLangsMap(langsAndAuthors);
+```
+
+实用点语法获取作者的名字看起来很棒，但是很遗憾，这不会产生我们期望的结果：
+
+```
+Number of languages: 2
+Author of JavaScript: Eich
+Asking fluently: undefined
+```
+
+接下来你将学习在map上动态合成属性，也许会增加`Ruby`或是`Python`关键字。我们无法在元编程时预测它们的名称，并以此处理一些不存在的属性或方法。
+
+### 实例上的成员合成
+
