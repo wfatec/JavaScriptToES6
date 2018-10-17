@@ -490,3 +490,321 @@ Asking fluently: undefined
 
 ### 实例上的成员合成
 
+接下来我们将在`Map`的实例`langsAndAuthors`上合成属性。主要用到的方法就是代理的handler中的`get()`方法。
+
+现在让我们为`langsAndAuthors`对象创建一个`Proxy`来合成动态属性：
+
+```js
+const handler = {
+    get: function(target, propertyName, receiver) {
+        if(Reflect.has(target, propertyName)) {
+            const property = Reflect.get(target, propertyName);
+
+            if(property instanceof Function) { //existing method, bind and return
+                return property.bind(target);
+            }
+
+            //existing property, return as-is
+            return property;
+        }
+
+        //synthesize property: we assume it is a key
+        return target.get(propertyName);
+    }
+};
+
+const proxy = new Proxy(langsAndAuthors, handler);
+
+accessLangsMap(proxy);
+```
+
+这时，我们的点语法就生效啦，结果为：
+
+```
+Number of languages: 2
+Author of JavaScript: Eich
+Asking fluently: Eich
+```
+
+### 直面实例的成员合成
+
+如何我们不单单想实现`proxy.key`的调用，我们还希望实现`anyInstanceOfMap.key`。为了实现这样的效果，我们需要将两个不同的知识点归纳到一起。
+
+首先，当对象上一个不存在的属性被请求时，JS将自动请求对象的原型。若还不存在，则继续在原型链上查询。
+
+其次，代理可以捕获对字段，属性，以及方法的请求。
+
+现在，我们将以上两个知识合并起来，创建一个更强大的合成。如果一个属性或方法已经存在，那么没必要多此一举的使用代理。让代理的环节只在属性或方法不存在时出现是一个更好的方案。既然对象的原型只在对象本身不存在相应的属性和方法时才被访问，很显然会是一个更好的合成切入点。因此，我们完全可以为对象的原型添加代理。
+
+我们几乎已经找到了解决方案，但是在替换原型时还需要多加小心。`Map`实例通过其原型`Map.prototype`来获取方法。直接替换该原型对象将消除这些方法，这显然我是我们想要的结果。实践表明，`Map.prototype`的原型对象是一个空对象，验证如下：
+
+```js
+console.log(Reflect.getPrototypeOf(Map.prototype));
+```
+
+这是一个很好的代理替代候选。这个设计思路可以用如下流程图表示：
+
+![](.gitbook/assets/SynthesizingMembersDirectlyOnAnInstance.PNG)
+
+在之前设计中，`get()`方法的使用不得不做一些额外的工作：兼顾存在和不存在的成员。但在新的设计中，代理就不需要担心已存在的成员了，原始对象作为调用的接收方会自动处理该问题。
+
+与之前设计的另一个重要区别是，前者的reciver是一个代理，这是由于key实在代理上调用的。而现在，receiver是`Map`的实例。基于这些想法，我们来实现我们的设计：
+
+```js
+const proxy = new Proxy(Map.prototype, {
+    get: function(target, propertyName, receiver) {
+        return receiver.get(propertyName);
+    }
+});
+
+Reflect.setPrototypeOf(Map.prototype, proxy);
+```
+
+看起来简洁很多，让我们来看一下效果：
+
+```js
+const langsAndAuthors = new Map([
+    ['JavaScript', 'Eich'], ['Java', 'Gosling']]);
+
+console.log(langsAndAuthors.get('JavaScript'));
+console.log(langsAndAuthors.JavaScript);
+```
+
+结果为：
+
+```
+Eich
+Eich
+```
+
+再来测试一下在`Map`的不同实例下是否能正常工作：
+
+```js
+const capitals = new Map([
+    ['USA', 'Washington. D.C.'],
+    ['UK', 'London'],
+    ['Trinidad & Tobago', 'Port of Spain']]);
+
+console.log(capitals.UK);
+console.log(capitals['Trinidad & Tobago']);
+```
+
+结果为：
+
+```
+London
+Port of Spain
+```
+
+一切正常！
+
+## 使用装饰器
+
+`Proxy`类对于向已知的类中合成你自己的动态方法和属性非常有用。但是如果你想引入的是别人的方法，这时就要用到装饰器了。
+
+JS装饰器提供了和Java中注解类似的功能，提供了扩展所修饰主体功能的能力。
+
+我们回顾一下函数装饰器的例子，也就是`async`和`await`：
+
+```js
+const callCompute = async function(number) {
+```
+
+为了转化可能是异步调用的函数，JS提供了`async`关键字来修饰代码。很好的装饰，但它是作为一个关键字出现在语言中的。我们作为语言的使用者是无法自己添加关键字的，所以这里引入了装饰器来解决问题。
+
+JS提供了装饰器帮助我们向类或函数中注入自定义的行为。它被广泛应用于一些JS类库和框架中，例如React和Angular。装饰器可能用在类，方法，函数等。
+
+装饰器对于JS来说还是一个新概念，并且正在逐渐变成标准。Node.js目前还不支持装饰器，但我们已经可以通过Babel等工具进行语法转化并使用，例如安装Babel插件：`transform-decorators-legacy`。
+
+### 模仿一个Angular组件
+
+在Angular中，组件是一个介于浏览器视图和后台服务之间的类。使用Angular的程序员通常需要编写很多的组件。一个组件需要提供一些细节。例如，一个`selector`指向HTML文件中的元素名，将会被模板内容替换。同样的，一个`templateUrl`将提供模板的名称和地址。Angular希望这些细节以组件上一个`@Component`装饰器的一部分的形式出现，而不是作为组件类的一个字段或属性。研究Angular的`@Component`装饰器是一个很棒的途径来理解装饰器。
+
+如果我们想写一个Angular组件，我们将不得不引入Angular包的依赖项。尽管这不是很难，但如果仅仅只是想学习装饰器，很是有些繁琐了。所以，与之相对，我们将直接模拟实现一个Angular组件。
+
+下面是一个看起来像Angular组件类的例子，它使用`selector`来确定将要操作的DOM元素的名称，以及使用`templateUrl`属性来确定将要使用的模板文件名称。
+
+```js
+import { Component } from './component';
+
+@Component({
+    selector: 'contents',
+    templateUrl: './sample.component.html'
+})
+
+export class SampleComponent {}
+```
+
+如果实际使用Angular组件，则第一行需要修改为：`'@angular/core'`。此外，文件后缀名将改为`.js`或者`.ts`，而不是`.mjs`。但其余代码则不会有改变。
+
+Angular使用`@Component`来装饰类，并且以元数据的形式为这个类保存装饰器提供的细节。
+
+Angular将类似`selector`的属性存储到一个名为`annotations`的元数据关键字。为了实现这个功能，Angular使用一个名为`reflect-metadata`的类库来提供存储和检索元数据的函数。
+
+装饰器仅仅只是简单的在运行时拦截执行的函数。当JS发现一个装饰器，它将调用指向装饰器名称所对应的函数。例如，当一个名为`Component()`的函数遇到装饰器`@Component`时，该函数将将会在运行时执行并产生影响。
+
+Angular在框架内部已经实现了定义为函数的`@Component`装饰器。由于我们正在不依赖于Angular来模拟一个组件，因此并不需要接触这个装饰器。但是，我们可以简单的写下我们自己的版本，实现类似的功能。让我们来看个雷子加深理解：
+
+```js
+import 'reflect-metadata';
+
+export const Component = function(properties) {
+    return function(target) {
+        Reflect.defineMetadata('annotations', properties, target);
+        return target;
+    };
+}
+```
+
+`Component()`函数接收`properties`作为参数，但是立刻返回另一个函数 -- 装饰器函数。该函数获取一个`target`，也就是被装饰的类作为参数。在装饰器函数中，我们为`target`定义了名为`annotations`的元数据，并且将接收到的属性传递进来。最后，我们从函数中返回装饰后的类。一个类装饰器总是返回一个类。
+
+### 反思装饰后的类
+
+当一个类被Angular的装饰器，例如`@Component`, `@Pipe`,`@Directive`等等，装饰之后，Angular就能够读取元数据来判断接下来将要做什么。我们来验证一下：
+
+```js
+import { SampleComponent } from './sample.component';
+
+const metadataKeys = Reflect.getMetadataKeys(SampleComponent);
+console.log(`MetadataKeys: ${metadataKeys}`);
+
+const annotations = Reflect.getMetadata('annotations', SampleComponent);
+console.log('Annotations:');
+console.log(`selector: ${annotations.selector}`);
+console.log(`templateUrl: ${annotations.templateUrl}`);
+```
+
+我们引入了`SampleComponent`，并且通过调用`Reflect.getMetadataKeys()`来查询其元数据的keys，该方法在我们导入`reflect-metadata`包时，会自动添加到`Reflect`类上。然后使用`Reflect.getMetadata()`来获取元数据上的属性`annotations`。
+
+### 使用Babel进行转译
+
+由于原生Node.js还不支持装饰器，这里需要对原始代码进行转译，示例的`package.json`配置如下：
+
+```json
+{
+    "name": "decorators",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "babel src -d lib --keep-file-extension"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "babel-cli": "^7.0.0-beta.3",
+        "babel-plugin-transform-decorators-legacy": "^1.3.4",
+        "babel-preset-es2016": "^6.24.1"
+    },
+    "dependencies": {
+        "reflect-metadata": "^0.1.12"
+    }
+}
+```
+
+执行：
+
+```
+npm install
+```
+
+执行完毕后，执行如下命令将文件`src/component.mjs`,`src/sample.component.mjs`,以及`src/inspect-component.mjs`转译为`lib`文件夹下相同名称的文件。
+
+```
+npm run build
+```
+
+接下来执行转译后的文件来观察结果：
+
+```
+node --experimental-modules ./lib/inspect-component.mjs
+```
+
+结果为：
+
+```
+(node:2561) ExperimentalWarning: The ESM module loader is experimental.
+MetadataKeys: annotations
+Annotations:
+selector: contents
+templateUrl: ./sample.component.html
+```
+
+这个例子为我们展现了两点：装饰器如何注入行为来扩展装饰主体，以及像Angular这样的框架是如何使用装饰器的。
+
+### 创建一个自定义装饰器
+
+假设我们有一个拥有一些字段的`Person`类。我们创建该类的实例`peter`，并且触发其`toString()`方法，像这样：
+
+```js
+console.log(peter.toString());
+```
+
+结果为：
+
+```
+[object Object]
+```
+
+如果我们去掉`.toString()`，将会看到所有字段，但是这可能又太多了，如果能指定返回的结果，且不需要在每个创建的类中做修改，那就最好了。如果我们用一个`ToString()`装饰器来装饰类会怎么样呢？似乎是个很好的方案。
+
+我们首先写一个`ToString()`装饰器工厂，和此前的`@Component`装饰器一样。
+
+```js
+export const ToString = function(properties) {
+
+    const exclude = (properties && properties.exclude) || [];
+
+    return function(target) {
+        target.prototype.toString = function() {
+            return Object.keys(this)
+                .filter(key => !exclude.includes(key))
+                .map(key => `${key}: ${this[key]}`)
+                .join(', ');
+        };
+
+        return target;
+    }
+}
+```
+
+现在我们可以使用`@ToString`装饰器来向任意类动态添加成员：
+
+```js
+import { ToString } from './decorators.mjs';
+
+@ToString({exclude: ['age']})
+export default class Person {
+    constructor(firstName, lastName, age) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+    }
+}
+```
+
+现在创建`Person`类的实例，并触发`toString()`方法，并打印结果：
+
+```js
+import Person from './person';
+
+const peter = new Person('Peter', 'Parker', 23);
+
+console.log(peter.toString());
+```
+
+编译并执行该文件，命令如下：
+
+```
+npm install
+npm run build
+node --experimental-modules ./lib/view-person.mjs
+```
+
+执行结果为：
+
+```
+(node:2585) ExperimentalWarning: The ESM module loader is experimental.
+firstName: Peter, lastName: Parker
+```
+
