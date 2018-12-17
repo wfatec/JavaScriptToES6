@@ -1,0 +1,6 @@
+version: '3'
+services:
+  blog-site:
+    build: .
+    ports:
+      - "80:80"
