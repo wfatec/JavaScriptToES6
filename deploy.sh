@@ -10,6 +10,10 @@ echo "Clear old container..."
 
 docker container rm -f  JavaScriptToES6
 
+echo "Remove _book..."
+
+rm -rf _book
+
 echo "Start server..."
 
 docker run -p 4000:4000 -d --name JavaScriptToES6 -v /root/workspace/JavaScriptToES6/:/srv/gitbook fellah/gitbook
