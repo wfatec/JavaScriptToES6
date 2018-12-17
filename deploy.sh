@@ -6,11 +6,11 @@ echo "============== Start deploy ============="
 
 echo "Clean up old site"
 
-rm -rf ./site
+rm -rf ./_book
 
 echo "Start to build"
 
-gitbook build --output=/site/JavaScriptToES6
+gitbook build
 
 docker-compose up -d
 
