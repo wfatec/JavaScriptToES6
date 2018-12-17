@@ -4,9 +4,9 @@ set -euo pipefail
 
 echo "============== Start deploy ============="
 
-echo "Clean up old site"
+echo "Update source code"
 
-rm -rf ./_book
+git pull
 
 echo "Start to build"
 

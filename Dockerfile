@@ -1,7 +1,16 @@
-FROM nginx:alpine
+# 基础镜像为node，版本为v9.2.0
+FROM node:9.2.0
+# 镜像作者，可以附加联系信息
+MAINTAINER Chao
 
-COPY _book /usr/share/nginx/html
-COPY ./default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY ./scripts/init.sh /init.sh
+# 创建容器内的项目存放目录
+RUN mkdir -p /home/nodeapp
+WORKDIR /home/nodeapp
 
-CMD ["sh", "init.sh"]
+#  将Dockerfile当前目录下所有文件拷贝至容器内项目目录并安装项目依赖
+COPY . .
+RUN npm install -g gitbook-cli; \
+    gitbook serve
+
+# 容器对外暴露的端口号，要和node项目配置的端口号一致
+EXPOSE 4000
